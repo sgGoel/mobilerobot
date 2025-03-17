@@ -109,7 +109,7 @@ Integrate the IMU yaw angle with your mobile robot! This will probably be very u
 
 ### X.2 Mecanum Wheels
 
-Replace the existing wheels with mecanum wheels! Mecanum wheels allow the robot to move in any direction. However, the odometry and controller will be slightly different.
+Install 2 motors on the front of the robot, and replace all 4 existing wheels with mecanum wheels! Mecanum wheels allow the robot to move in any direction. However, the odometry and controller will be slightly different.
 
 
 [^1]: Version 1 - 2016: Peter Yu, Ryan Fish and Kamal Youcef-Toumi  
