@@ -48,7 +48,7 @@ Open `robot_motion_control.cpp` and read through `updateOdometry()`. Make sure t
 
 Make sure your PlatformIO environment is set to be `env:robot` and upload the code to the microcontroller on your mobile robot. Once the code has finished uploading, unplug the robot from your computer, set it on the ground, power it on, and press `RST`. Your robot should now autonomously follow a U-Turn!
 
-Your U-Turn will probably not be perfect! While odometry is straightforward to implement, it suffers from problems such as position drift due to wheel slippage. [IMU data](#51-imu) (or some combination of IMU and odometry) will likely be more reliable. 
+Your U-Turn will probably not be perfect! While odometry is straightforward to implement, it suffers from problems such as position drift due to wheel slippage. [IMU data](#X1-imu) (or some combination of IMU and odometry) will likely be more reliable. 
 
 ### 1.4 Circle
 
