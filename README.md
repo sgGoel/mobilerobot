@@ -34,7 +34,7 @@ Take some time to understand `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_
 - `robot_main.cpp`: Includes the `setup()` and `loop()` functions, telling the microcontroller exactly what to do and when.
 - `robot_drive.cpp`: Sets up the motors and implements a PI controller to follow velocity setpoints.
 - `robot_motion_control.cpp`: Calculates odometry and setpoints based on either joystick or a given trajectory.
-- `robot_wireless.cpp`: Sets up two-way wireless communication with and sends messages to the microcontroller on your controller.
+- `robot_wireless.cpp`: Sets up two-way wireless communication with and sends messages to the microcontroller on your controller. The messages are defined in `lib/wireless.h`.
 
 ### 1.2 Understand Odometry
 
