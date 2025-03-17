@@ -18,10 +18,9 @@ Spring 2025[^1]
   - [2.4 Run Controller](#24-run-controller)
   - [2.5 Run Joystick Control](#25-run-joystick-control)
 - [3 Custom Trajectory](#3-custom-trajectory)
-- [4 Feedback Form](#4-feedback-form)
-- [5 Optional Extensions](#5-optional-extensions)
-  - [5.1 IMU](#51-imu)
-  - [5.2 Mecanum Wheels](#52-mecanum-wheels)
+- [X Optional Extensions](#X-optional-extensions)
+  - [X.1 IMU](#X1-imu)
+  - [X.2 Mecanum Wheels](#X2-mecanum-wheels)
 
 </details>
 
@@ -102,21 +101,13 @@ In `robot_motion_control.cpp`, comment out `#define JOYSTICK` and uncomment `#de
 |:---------------------------------------------------|
 | Show your mobile robot in action to a TA or LA. |
 
-## 4 Feedback Form
+## X Optional Extensions
 
-Before you leave, please fill out https://tinyurl.com/212-feedback. 
+### X.1 IMU 
 
-| :white_check_mark: CHECKOFF 3 :white_check_mark:   |
-|:---------------------------------------------------|
-| Show the feedback form completion screen to a TA or LA. |
+Integrate the IMU yaw angle with your mobile robot! This will probably be very useful for your final project.
 
-## 5 Optional Extensions
-
-### 5.1 IMU 
-
-Integrate the IMU with your mobile robot! This will probably be very useful for your final project.
-
-### 5.2 Mecanum Wheels
+### X.2 Mecanum Wheels
 
 Replace the existing wheels with mecanum wheels! Mecanum wheels allow the robot to move in any direction. However, the odometry and controller will be slightly different.
 
