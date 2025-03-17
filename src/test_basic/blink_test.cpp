@@ -7,7 +7,7 @@ void setup() {
   // Initialize all board peripherals, call this first
   ums3.begin();
 
-  // Brightness is 0-255. We set it to 1/3 brightness here
+  // Brightness is 0-255.
   ums3.setPixelBrightness(255);
 
   Serial.begin();
