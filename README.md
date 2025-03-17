@@ -60,7 +60,7 @@ In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#defin
 
 In order to establish wireless communication, we first have to make sure that both microcontrollers know each other's MAC addresses.
 
-Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/robot/` folder and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `robotAddr` to the MAC address being printed to the Serial monitor.
+Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/robot/` folder somewhere else and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `robotAddr` to the MAC address being printed to the Serial monitor.
 
 ### 2.2 Get Controller MAC Address
 
