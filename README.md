@@ -1,7 +1,7 @@
 # Lab 7: Mobile Robot II
 
 2.12/2.120 Intro to Robotics  
-Spring 2024[^1]
+Spring 2025[^1]
 
 <details>
   <summary>Table of Contents</summary>
@@ -125,4 +125,5 @@ Replace the existing wheels with mecanum wheels! Mecanum wheels allow the robot 
   Version 2 - 2017: Yingnan Cui and Kamal Youcef-Toumi  
   Version 3 - 2019: Jerry Ng  
   Version 4 - 2023: Joseph Ntaimo, Kentaro Barhydt, Ravi Tejwani, Kamal Youcef-Toumi and Harrison Chin  
-  Version 5 - 2024: Jinger Chong, Josh Sohn
+  Version 5 - 2024: Jinger Chong, Josh Sohn  
+  Version 6 - 2025: Roberto Bolli Jr., Kaleb Blake
