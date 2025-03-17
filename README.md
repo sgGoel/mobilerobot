@@ -105,7 +105,7 @@ In `robot_motion_control.cpp`, comment out `#define JOYSTICK` and uncomment `#de
 
 ### X.1 IMU 
 
-Integrate the IMU yaw angle with your mobile robot! This will probably be very useful for your final project.
+Install an IMU on the circuit board (if not already present), and use the IMU yaw angle to increase the accuracy of `robotMessage.theta` in `robot_motion_control.cpp`. For example, you could make `theta` completely dependent on the IMU readings. This will probably be very useful for your final project.
 
 ### X.2 Mecanum Wheels
 
