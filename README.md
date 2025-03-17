@@ -69,7 +69,7 @@ Connect to the microcontroller on your controller and change your PlatformIO env
 <details> <summary> <i> Forget how to change environments? </i> </summary>
 
 Please refer to the [instructions from Lab 6](
-https://github.com/mit212/lab6_2024?tab=readme-ov-file#1-changing-platformio-environment).
+https://github.com/mit212/lab6_2025?tab=readme-ov-file#1-changing-platformio-environment).
 
 </details>
 
