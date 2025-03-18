@@ -28,7 +28,7 @@ We have already written most of the code for this lab. We hope that you will use
 
 ## 1 Mobile Robot
 
-_Estimated time: ≤ 25 minutes_
+_Estimated time: ≤25 minutes_
 
 ### 1.1 Understand navigation code in `robot/`
 
