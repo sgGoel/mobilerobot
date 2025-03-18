@@ -58,7 +58,7 @@ In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#defin
 
 | :white_check_mark: CHECKOFF 1 :white_check_mark:   |
 |:---------------------------------------------------|
-| Tell us how the code works, specifically how the robot odometry is implemented using the Jacobian. Why is the U-turn inaccurate, and how could we improve the accuracy? |
+| Tell us how the code works, specifically how the robot odometry is implemented using the Jacobian. Why is the U-turn inaccurate, and how could we improve its accuracy? |
 
 ## 2 Joystick Control
 
