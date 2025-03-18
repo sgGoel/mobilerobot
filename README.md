@@ -24,7 +24,7 @@ Spring 2025[^1]
 
 </details>
 
-We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. Have a great spring break!
+We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. This lab should take no more than 1 hour to complete. Have a great spring break!
 
 ## 1 Mobile Robot
 
