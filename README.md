@@ -65,7 +65,7 @@ In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#defin
 _Estimated time: 25 minutes_
 
 <p align="center">
-<img src="./.images/architecture.png" alt="Mobile Robot and Controller Architecture" width="1000"/>
+<img src="./.images/architecture.png" alt="Mobile Robot and Controller Architecture" width="800"/>
 </p>
 
 ### 2.1 Get Robot MAC Address
