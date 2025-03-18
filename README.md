@@ -70,7 +70,7 @@ In order to establish wireless communication, we first have to make sure that bo
 
 Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/robot/` folder somewhere else and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `robotAddr` to the MAC address being printed to the Serial monitor. If you don't see anything printing, make sure you have selected the right microcontroller port (it must be connected to your laptop via USB).
 
-### 2.2 Get Controller MAC Address
+### 2.2 Get Joystick Controller MAC Address
 
 Connect to the microcontroller on your controller and change your PlatformIO environment to be `env:controller`.
 
@@ -83,11 +83,11 @@ https://github.com/mit212/lab6_2025?tab=readme-ov-file#1-changing-platformio-env
 
 Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/controller/` folder and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `controllerAddr` to this MAC address.
 
-### 2.3 Validate Controller
+### 2.3 Validate Joystick Controller
 
 Run `src/test_controller/controller_test.cpp`. You should see joystick readings being printed to your Serial monitor.
 
-### 2.4 Run Controller
+### 2.4 Run Joystick Controller
 
 Upload `controller_main.cpp` and `controller_wireless.cpp` to the microcontroller on your controller. This will read the joystick and set up two-way wireless communication with the microcontroller on the mobile robot.
 
