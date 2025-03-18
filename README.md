@@ -62,7 +62,7 @@ In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#defin
 
 ## 2 Joystick Control
 
-_Estimated time: 25 minutes_
+_Estimated time: 20 minutes_
 
 <p align="center">
 <img src="./.images/architecture.png" alt="Mobile Robot and Controller Architecture" width="800"/>
@@ -107,7 +107,7 @@ Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `r
 
 ## 3 Custom Trajectory
 
-_Estimated time: 10 minutes_
+_Estimated time: 15 minutes_
 
 In `robot_motion_control.cpp`, comment out `#define JOYSTICK` and uncomment `#define YOUR_TRAJECTORY`. In the `followTrajectory()` function, make your own path using a state machine, taking `UTURN` as inspiration. You do not need to make it too complicated :)
 
