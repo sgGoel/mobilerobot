@@ -72,7 +72,7 @@ _Estimated time: 25 minutes_
 
 In order to establish wireless communication, we first have to make sure that both microcontrollers know each other's MAC addresses.
 
-Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/robot/` folder somewhere else and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `robotAddr` to the MAC address being printed to the Serial monitor. If you don't see anything printing, make sure you have selected the right microcontroller port (it must be connected to your laptop via USB).
+Run `lib/Wireless/examples/get_mac.cpp` (you will have to temporarily move the existing files inside the `src/robot/` folder somewhere else and replace them with `get_mac.cpp`). Open `lib/Wireless/wireless.h` and change `robotAddr` to the MAC address being printed to the Serial monitor. If you don't see anything printing, make sure you have selected the right microcontroller port (it must be connected to your laptop via USB). Switch back to "Auto" when you're done with the Serial monitor.
 
 ### 2.2 Get Joystick Controller MAC Address
 
