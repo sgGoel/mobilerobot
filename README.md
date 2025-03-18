@@ -95,7 +95,7 @@ Run `src/test_controller/controller_test.cpp`. You should see joystick readings 
 
 Upload `controller_main.cpp` and `controller_wireless.cpp` to the microcontroller on your controller. This will read the joystick and set up two-way wireless communication with the microcontroller on the mobile robot.
 
-### 2.5 Run Joystick Control
+### 2.5 Drive the Robot Around
 
 In `robot_motion_control.cpp`, comment out `#define CIRCLE` and uncomment `#define JOYSTICK`. This will change the `followTrajectory()` function to follow a joystick instead of a circle. 
 
