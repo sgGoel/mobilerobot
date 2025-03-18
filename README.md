@@ -26,9 +26,9 @@ Spring 2025[^1]
 
 We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. Have a great spring break!
 
-## 1 Mobile Robot
+## 1 Mobile Robot (estimate: 25 minutes)
 
-### 1.1 Understand `robot/` (estimate: 10 minutes)
+### 1.1 Understand navigation code in `robot/` (estimate: 10 minutes)
 
 Take some time to understand `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp`. At a high level:
 - `robot_main.cpp`: Includes the `setup()` and `loop()` functions, telling the microcontroller exactly what to do and when.
