@@ -24,15 +24,13 @@ Spring 2025[^1]
 
 </details>
 
-We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. This lab should take no more than 1 hour to complete. Have a great spring break!
+We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. This lab should take **no more than 1 hour** to complete. Have a great spring break!
 
 ## 1 Mobile Robot
 
 _Estimated time: 25 minutes_
 
 ### 1.1 Understand navigation code in `robot/`
-
-_Estimated time: 10 minutes_
 
 Take some time to understand `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp`. At a high level:
 - `robot_main.cpp`: Includes the `setup()` and `loop()` functions, telling the microcontroller exactly what to do and when.
@@ -63,6 +61,8 @@ In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#defin
 | Tell us how the code works, specifically how the robot odometry is implemented using the Jacobian. Why is the U-turn inaccurate, and how could we improve the accuracy? |
 
 ## 2 Joystick Control
+
+_Estimated time: 25 minutes_
 
 ### 2.1 Get Robot MAC Address
 
@@ -102,6 +102,8 @@ Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `r
 | Show your mobile robot in action to a TA or LA. |
 
 ## 3 Custom Trajectory
+
+_Estimated time: 10 minutes_
 
 In `robot_motion_control.cpp`, comment out `#define JOYSTICK` and uncomment `#define YOUR_TRAJECTORY`. In the `followTrajectory()` function, make your own path using a state machine, taking `UTURN` as inspiration. You do not need to make it too complicated :)
 
