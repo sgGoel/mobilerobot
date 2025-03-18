@@ -26,9 +26,13 @@ Spring 2025[^1]
 
 We have already written most of the code for this lab. We hope that you will use the extra free time to fully understand the mobile robot codebase and prepare for the final competition. Have a great spring break!
 
-## 1 Mobile Robot (estimate: 25 minutes)
+## 1 Mobile Robot
 
-### 1.1 Understand navigation code in `robot/` (estimate: 10 minutes)
+_Estimated time: 25 minutes_
+
+### 1.1 Understand navigation code in `robot/`
+
+_Estimated time: 10 minutes_
 
 Take some time to understand `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp`. At a high level:
 - `robot_main.cpp`: Includes the `setup()` and `loop()` functions, telling the microcontroller exactly what to do and when.
@@ -53,6 +57,10 @@ Your U-Turn will probably not be perfect! While odometry is straightforward to i
 ### 1.4 Circle
 
 In `robot_motion_control.cpp`, comment out `#define UTURN` and uncomment `#define CIRCLE`. This will change the `followTrajectory()` function to follow a circle instead of a U-Turn. Your robot should now autonomously follow a circle!
+
+| :white_check_mark: CHECKOFF 1 :white_check_mark:   |
+|:---------------------------------------------------|
+| Tell us how the code works, specifically how the robot odometry is implemented using the Jacobian. Why is the U-turn inaccurate, and how could we improve the accuracy? |
 
 ## 2 Joystick Control
 
@@ -89,7 +97,7 @@ In `robot_motion_control.cpp`, comment out `#define CIRCLE` and uncomment `#defi
 
 Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp` to the microcontroller on your mobile robot. At this point, you should be able to drive your mobile robot around with your joystick!
 
-| :white_check_mark: CHECKOFF 1 :white_check_mark:   |
+| :white_check_mark: CHECKOFF 2 :white_check_mark:   |
 |:---------------------------------------------------|
 | Show your mobile robot in action to a TA or LA. |
 
@@ -97,7 +105,7 @@ Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `r
 
 In `robot_motion_control.cpp`, comment out `#define JOYSTICK` and uncomment `#define YOUR_TRAJECTORY`. In the `followTrajectory()` function, make your own path using a state machine, taking `UTURN` as inspiration.
 
-| :white_check_mark: CHECKOFF 2 :white_check_mark:   |
+| :white_check_mark: CHECKOFF 3 :white_check_mark:   |
 |:---------------------------------------------------|
 | Show your mobile robot in action to a TA or LA. |
 
