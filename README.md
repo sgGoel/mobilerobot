@@ -99,7 +99,7 @@ Upload `controller_main.cpp` and `controller_wireless.cpp` to the microcontrolle
 
 In `robot_motion_control.cpp`, comment out `#define CIRCLE` and uncomment `#define JOYSTICK`. This will change the `followTrajectory()` function to follow a joystick instead of a circle. 
 
-Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp` to the microcontroller on your mobile robot. At this point, you should be able to drive your mobile robot around with your joystick!
+Set your PlatformIO environment back to `env:robot`. Upload `robot_main.cpp`, `robot_drive.cpp`, `robot_motion_control.cpp`, and `robot_wireless.cpp` to the microcontroller on your mobile robot. Make sure the joystick microcontroller is receiving power from a laptop. At this point, you should be able to drive your mobile robot around with your joystick!
 
 | :white_check_mark: CHECKOFF 2 :white_check_mark:   |
 |:---------------------------------------------------|
