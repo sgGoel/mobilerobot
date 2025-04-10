@@ -6,6 +6,7 @@
 * Push local branch to git (and commit and push updates frequently)
 * Whenever you're ready (ex: you've finished a feature), make a pull request (this will merge your changes into the main branch)
 * (Software team lead will be responsible for timely review of pull requests)
+# Test
 
 # Project structure
 
