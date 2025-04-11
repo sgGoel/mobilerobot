@@ -1,4 +1,5 @@
-#include <remote.h>
+#include <Arduino.h>
+#include "remote.h"
 
 void setup() {
   ums3.begin();
