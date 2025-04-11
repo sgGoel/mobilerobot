@@ -5,19 +5,19 @@ void setup() {
   ums3.begin();
 
   initPeripherals();
-  //initRotary();  
+  initRotary();  
   Serial.println("Starting!");
   delay(1000);
-  initSender();
+  initReceiver();
 
 }
 
 void loop() {
-  readJoysticks();
-  readSwitches();
-  //readRotary();
+  //readJoysticks();
+  //readSwitches();
+  readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
   printData();  // Prints data via serial port
-  //delay(20);
+  delay(20);
 }
