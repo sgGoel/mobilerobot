@@ -57,12 +57,24 @@ void setup() {
   delay(1000);
   //initReceiver();
   // Initialize serial communication
-  Serial.begin();
+  //Serial.begin();
 
   // Setup the motor driver
-  for (uint8_t i = 0; i < 4; i++)
+  for (uint8_t i = 0; i < 4; i++) {
+      Serial.begin(9600);
+      while (!Serial); // wait for serial port to connect
+      Serial.println("Ready for input:");
       motors[i].setup();
+  }
+  // ADDED
+  /*
+  //setup the motor objects
+  FM1.setup();
+  FM2.setup();
+  RM1.setup();
+  RM2.setup();*/
 }
+
 
 void loop() {
   Serial.println("in the loop!");
@@ -73,6 +85,29 @@ void loop() {
   //sendData(); // Sends data using ESP-NOW to reciever
   //printData();  // Prints data via serial port
   delay(20);
+
+  // ADDED
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n');
+    Serial.print("Input: ");
+    Serial.println(input);
+    if (input == "Forward" or input == "forward"){
+      //Forward command
+      
+    }
+    else if (input == "Back" or input == "back"){
+      //Back command
+    }
+    else if (input == "Left" or input == "left"){
+      //Left command
+    }
+    else if (input == "Right" or input == "right"){
+      //Right command
+    }
+    else if (input == "Stop" or input == "stop"){
+      //Stop command
+    }
+  }
 
   // test, all forward, 50% pwm
   motors[1].drive(-0.5);
