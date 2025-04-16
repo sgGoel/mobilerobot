@@ -44,13 +44,13 @@ MotorDriver RM1(DIR_PIN_RM1, PWM_PIN_RM1, LEDC_CHANNEL_RM1);
 MotorDriver RM2(DIR_PIN_RM2, PWM_PIN_RM2, LEDC_CHANNEL_RM2);
 
 void setup() {
-  ums3.begin();
+//  ums3.begin();
 
-  initPeripherals();
-  initRotary();  
+//  initPeripherals();
+//  initRotary();  
   Serial.println("Starting!");
   delay(1000);
-  initReceiver();
+//  initReceiver();
 
   // ADDED
   Serial.begin(9600);
@@ -78,29 +78,48 @@ void loop() {
     String input = Serial.readStringUntil('\n');
     Serial.print("Input: ");
     Serial.println(input);
-    if (input == "Forward" or input == "forward"){
+    if (input == "w"){
       //Forward command
-      
+      FM1.drive(0.5);
+      FM2.drive(0.5);
+      RM1.drive(0.5);
+      RM2.drive(0.5);
     }
-    else if (input == "Back" or input == "back"){
+    else if (input == "s"){
       //Back command
+      FM1.drive(-0.5);
+      FM2.drive(-0.5);
+      RM1.drive(-0.5);
+      RM2.drive(-0.5);
     }
-    else if (input == "Left" or input == "left"){
+    else if (input == "a"){
       //Left command
+      FM1.drive(0.5);
+      FM2.drive(-0.5);
+      RM1.drive(-0.5);
+      RM2.drive(0.5);
     }
-    else if (input == "Right" or input == "right"){
+    else if (input == "d"){
       //Right command
+      FM1.drive(-0.5);
+      FM2.drive(0.5);
+      RM1.drive(0.5);
+      RM2.drive(-0.5);
     }
-    else if (input == "Stop" or input == "stop"){
+    else if (input == " "){
       //Stop command
+      FM1.drive(0);
+      FM2.drive(0);
+      RM1.drive(0);
+      RM2.drive(0);
     }
   }
 
   // test, all forward, 50% pwm
-  FM1.drive(-0.5);
-  FM2.drive(0.5);
-  RM1.drive(0.5);
-  RM2.drive(-0.5);
+  //FM1.drive(-0.5);
+  //FM2.drive(0.5);
+  //RM1.drive(0.5);
+  //RM2.drive(-0.5);
 
   // // might be right or left, unsure
   // if(data.swch1){
