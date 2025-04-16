@@ -1,19 +1,19 @@
 #include <Arduino.h>
-#include "remote.h"
+//#include "remote.h"
 #include "MotorDriver.h"
 
 // get these values right!!!
-#define DIR_PIN_FM1 1034
-#define PWM_PIN_FM1 107
+#define DIR_PIN_FM1 34
+#define PWM_PIN_FM1 7
 #define LEDC_CHANNEL_FM1 0
-#define DIR_PIN_FM2 103
-#define PWM_PIN_FM2 106
+#define DIR_PIN_FM2 3
+#define PWM_PIN_FM2 6
 #define LEDC_CHANNEL_FM2 0
-#define DIR_PIN_RM1 1039
-#define PWM_PIN_RM1 1041
+#define DIR_PIN_RM1 39
+#define PWM_PIN_RM1 41
 #define LEDC_CHANNEL_RM1 0
-#define DIR_PIN_RM2 1040
-#define PWM_PIN_RM2 1042
+#define DIR_PIN_RM2 40
+#define PWM_PIN_RM2 42
 #define LEDC_CHANNEL_RM2 0
 
 // motor PWMs
@@ -43,36 +43,42 @@ MotorDriver FM2(DIR_PIN_FM2, PWM_PIN_FM2, LEDC_CHANNEL_FM2);
 MotorDriver RM1(DIR_PIN_RM1, PWM_PIN_RM1, LEDC_CHANNEL_RM1);
 MotorDriver RM2(DIR_PIN_RM2, PWM_PIN_RM2, LEDC_CHANNEL_RM2);
 
-void setup() {
-  ums3.begin();
+MotorDriver motors[4] = { {DIR_PIN_RM1, PWM_PIN_RM1, 0}, {DIR_PIN_RM2, PWM_PIN_RM2, 1},
+                                   {DIR_PIN_FM1, PWM_PIN_FM1, 2}, {DIR_PIN_FM2, PWM_PIN_FM2, 3} };
 
-  initPeripherals();
-  initRotary();  
+                                   // 0 is RM1, 1 is RM2, 2 is FM1, 3 is FM2
+
+void setup() {
+  //ums3.begin();
+
+  //initPeripherals();
+  //initRotary();  
   Serial.println("Starting!");
   delay(1000);
-  initReceiver();
+  //initReceiver();
+  // Initialize serial communication
+  Serial.begin();
 
-  //setup the motor objects
-  FM1.setup();
-  FM2.setup();
-  RM1.setup();
-  RM2.setup();
+  // Setup the motor driver
+  for (uint8_t i = 0; i < 4; i++)
+      motors[i].setup();
 }
 
 void loop() {
+  Serial.println("in the loop!");
   //readJoysticks();
   //readSwitches();
-  readRotary();
+  //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
-  printData();  // Prints data via serial port
+  //printData();  // Prints data via serial port
   delay(20);
 
   // test, all forward, 50% pwm
-  FM1.drive(-0.5);
-  FM2.drive(0.5);
-  RM1.drive(0.5);
-  RM2.drive(-0.5);
+  motors[1].drive(-0.5);
+  motors[2].drive(0.5);
+  motors[3].drive(0.5);
+  motors[0].drive(-0.5);
 
   // // might be right or left, unsure
   // if(data.swch1){
