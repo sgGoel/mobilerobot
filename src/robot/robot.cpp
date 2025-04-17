@@ -1,26 +1,28 @@
+// this is C++ but i'm just saving something locally
+
 #include <Arduino.h>
-//#include "remote.h"
+#include "remote.h"
 #include "MotorDriver.h"
 
 // get these values right!!!
 #define DIR_PIN_FM1 34
 #define PWM_PIN_FM1 7
-#define LEDC_CHANNEL_FM1 0
+//#define LEDC_CHANNEL_FM1 0
 #define DIR_PIN_FM2 3
 #define PWM_PIN_FM2 6
-#define LEDC_CHANNEL_FM2 0
+//#define LEDC_CHANNEL_FM2 1
 #define DIR_PIN_RM1 39
 #define PWM_PIN_RM1 41
-#define LEDC_CHANNEL_RM1 0
+//#define LEDC_CHANNEL_RM1 2
 #define DIR_PIN_RM2 40
 #define PWM_PIN_RM2 42
-#define LEDC_CHANNEL_RM2 0
+//#define LEDC_CHANNEL_RM2 3
 
 // motor PWMs
-double pwm_FM1; // backwards
-double pwm_FM2;
-double pwm_RM1;
-double pwm_RM2; //backwards
+double pwm_0; // backwards
+double pwm_1;
+double pwm_2;
+double pwm_3; //backwards
 
 // switch mode booleans
 bool nav_mode = false;
@@ -38,32 +40,29 @@ double min_val = 0.2;
 
 // Initialize the motor driver object with DIR and PWM pin numbers and LEDC channel
 // F is front, R is rear
-MotorDriver FM1(DIR_PIN_FM1, PWM_PIN_FM1, LEDC_CHANNEL_FM1);
-MotorDriver FM2(DIR_PIN_FM2, PWM_PIN_FM2, LEDC_CHANNEL_FM2);
-MotorDriver RM1(DIR_PIN_RM1, PWM_PIN_RM1, LEDC_CHANNEL_RM1);
-MotorDriver RM2(DIR_PIN_RM2, PWM_PIN_RM2, LEDC_CHANNEL_RM2);
+// MotorDriver FM1(DIR_PIN_FM1, PWM_PIN_FM1, LEDC_CHANNEL_FM1);
+// MotorDriver FM2(DIR_PIN_FM2, PWM_PIN_FM2, LEDC_CHANNEL_FM2);
+// MotorDriver RM1(DIR_PIN_RM1, PWM_PIN_RM1, LEDC_CHANNEL_RM1);
+// MotorDriver RM2(DIR_PIN_RM2, PWM_PIN_RM2, LEDC_CHANNEL_RM2);
 
 MotorDriver motors[4] = { {DIR_PIN_RM1, PWM_PIN_RM1, 0}, {DIR_PIN_RM2, PWM_PIN_RM2, 1},
                                    {DIR_PIN_FM1, PWM_PIN_FM1, 2}, {DIR_PIN_FM2, PWM_PIN_FM2, 3} };
 
-                                   // 0 is RM1, 1 is RM2, 2 is FM1, 3 is FM2
+                                   // 0123 stating front right wheel and moving CCW
 
 void setup() {
-  //ums3.begin();
+  ums3.begin();
 
   //initPeripherals();
   //initRotary();  
   Serial.println("Starting!");
   delay(1000);
-  //initReceiver();
+  initReceiver();
   // Initialize serial communication
-  //Serial.begin();
+  Serial.begin();
 
   // Setup the motor driver
   for (uint8_t i = 0; i < 4; i++) {
-      Serial.begin(9600);
-      while (!Serial); // wait for serial port to connect
-      Serial.println("Ready for input:");
       motors[i].setup();
   }
   // ADDED
@@ -77,86 +76,87 @@ void setup() {
 
 
 void loop() {
-  Serial.println("in the loop!");
-  //readJoysticks();
-  //readSwitches();
+  readJoysticks();
+  readSwitches();
   //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
-  //printData();  // Prints data via serial port
+  printData();  // Prints data via serial port
   delay(20);
 
   // ADDED
-  if (Serial.available() > 0) {
-    String input = Serial.readStringUntil('\n');
-    Serial.print("Input: ");
-    Serial.println(input);
-    if (input == "Forward" or input == "forward"){
-      //Forward command
-      
-    }
-    else if (input == "Back" or input == "back"){
-      //Back command
-    }
-    else if (input == "Left" or input == "left"){
-      //Left command
-    }
-    else if (input == "Right" or input == "right"){
-      //Right command
-    }
-    else if (input == "Stop" or input == "stop"){
-      //Stop command
-    }
-  }
 
   // test, all forward, 50% pwm
+  motors[0].drive(-0.5);
   motors[1].drive(-0.5);
   motors[2].drive(0.5);
   motors[3].drive(0.5);
-  motors[0].drive(-0.5);
 
-  // // might be right or left, unsure
+  // // WHERE THE GOOD STUFF STARTS
   // if(data.swch1){
-  //   Serial.println("Switching to Nav Mode");
+  //   //Serial.println("Switching to Nav Mode");
   //   man_mode = false;
   //   nav_mode = true;
+  //   pwm_0=0;
+  //   pwm_1=0;
+  //   pwm_2=0;
+  //   pwm_3=0;
   // }
   // if(data.swch2){
-  //   Serial.print("Switching to Man Mode");
+  //   //Serial.print("Switching to Man Mode");
   //   man_mode = true;
   //   nav_mode = false;
+  //   pwm_0=0;
+  //   pwm_1=0;
+  //   pwm_2=0;
+  //   pwm_3=0;
   // }
-
-  // // when in man_mode
-  // if(man_mode){
-  //   Serial.println("you're in man mode!");
-  // }
+  // pwm_0=0;
+  // pwm_1=0;
+  // pwm_2=0;
+  // pwm_3=0;
+  // // // when in man_mode
+  // // if(man_mode){
+  // //   Serial.println("you're in man mode!");
+  // // }
 
   // // when in nav_mode
   // if(nav_mode){
-  //   Serial.println("you're in nav mode!");
+  //   //Serial.println("you're in nav mode!");
 
-  //   // forward, Y joystick is positive
-  //   if(data.leftY > 0.2){
-  //     pwm_FM1 = data.leftY;
-  //     pwm_FM2 = data.leftY;
-  //   } else if(data.leftY < 0.2){ // backward, Y joystick is negative
-  //     pwm_FM1 = data.leftY;
-  //     pwm_FM2 = data.leftY;
+  //   // forward or backward, left Y joystick
+  //   if(data.leftY > 0.2 or data.leftY < -0.2){
+  //     Serial.println("Forward/Backward");
+  //     pwm_0 += data.leftY/3;
+  //     pwm_1 += data.leftY/3;
+  //     pwm_2 += data.leftY/3;
+  //     pwm_3 += data.leftY/3;
   //   }
-  //   // strafe right, X joystick is positive
-  //   if(data.leftX > 0.2){
+  //   // strafe, left X joystick
+  //   if(data.leftX > 0.2 or data.leftX < -0.2){
+  //     Serial.println("Strafing");
+  //     pwm_0 += data.leftX/3;
+  //     pwm_1 += -data.leftX/3;
+  //     pwm_2 += data.leftX/3;
+  //     pwm_3 += -data.leftX/3;
 
   //   }
-  //   // strafe left, X joystick is negative
-  //   if(data.leftX < 0.2){
-
+  //   // turn, right X joystick
+  //   if(data.rightX > 0.2 or data.rightX < -0.2){
+  //     Serial.println("Turning");
+  //     pwm_0 += -data.rightX/3;
+  //     pwm_1 += data.rightX/3;
+  //     pwm_2 += data.rightX/3;
+  //     pwm_3 += -data.rightX/3;
   //   }
-
-  //   FM1.drive(-pwm_FM1);
-  //   FM2.drive(pwm_FM2);
-  //   RM1.drive(pwm_RM1);
-  //   RM2.drive(-pwm_RM2);
+  //   Serial.println(pwm_0);
+  //   Serial.println(pwm_1);
+  //   Serial.println(pwm_2);
+  //   Serial.println(pwm_3);
+  //   motors[0].drive(-pwm_0);
+  //   motors[1].drive(-pwm_1);
+  //   motors[2].drive(pwm_2);
+  //   motors[3].drive(pwm_3);
 
   // }
   
