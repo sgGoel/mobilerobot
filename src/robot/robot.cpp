@@ -76,8 +76,8 @@ void setup() {
 
 
 void loop() {
-  readJoysticks();
-  readSwitches();
+  //readJoysticks();
+  //readSwitches();
   //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
@@ -87,77 +87,77 @@ void loop() {
   // ADDED
 
   // test, all forward, 50% pwm
-  motors[0].drive(-0.5);
-  motors[1].drive(-0.5);
-  motors[2].drive(0.5);
-  motors[3].drive(0.5);
+  // motors[0].drive(-0.5);
+  // motors[1].drive(-0.5);
+  // motors[2].drive(0.5);
+  // motors[3].drive(0.5);
 
-  // // WHERE THE GOOD STUFF STARTS
-  // if(data.swch1){
-  //   //Serial.println("Switching to Nav Mode");
-  //   man_mode = false;
-  //   nav_mode = true;
-  //   pwm_0=0;
-  //   pwm_1=0;
-  //   pwm_2=0;
-  //   pwm_3=0;
+  // WHERE THE GOOD STUFF STARTS
+  if(data.swch1){
+    //Serial.println("Switching to Nav Mode");
+    man_mode = false;
+    nav_mode = true;
+    pwm_0=0;
+    pwm_1=0;
+    pwm_2=0;
+    pwm_3=0;
+  }
+  if(data.swch2){
+    //Serial.print("Switching to Man Mode");
+    man_mode = true;
+    nav_mode = false;
+    pwm_0=0;
+    pwm_1=0;
+    pwm_2=0;
+    pwm_3=0;
+  }
+  pwm_0=0;
+  pwm_1=0;
+  pwm_2=0;
+  pwm_3=0;
+  // // when in man_mode
+  // if(man_mode){
+  //   Serial.println("you're in man mode!");
   // }
-  // if(data.swch2){
-  //   //Serial.print("Switching to Man Mode");
-  //   man_mode = true;
-  //   nav_mode = false;
-  //   pwm_0=0;
-  //   pwm_1=0;
-  //   pwm_2=0;
-  //   pwm_3=0;
-  // }
-  // pwm_0=0;
-  // pwm_1=0;
-  // pwm_2=0;
-  // pwm_3=0;
-  // // // when in man_mode
-  // // if(man_mode){
-  // //   Serial.println("you're in man mode!");
-  // // }
 
-  // // when in nav_mode
-  // if(nav_mode){
-  //   //Serial.println("you're in nav mode!");
+  // when in nav_mode
+  if(nav_mode){
+    //Serial.println("you're in nav mode!");
 
-  //   // forward or backward, left Y joystick
-  //   if(data.leftY > 0.2 or data.leftY < -0.2){
-  //     Serial.println("Forward/Backward");
-  //     pwm_0 += data.leftY/3;
-  //     pwm_1 += data.leftY/3;
-  //     pwm_2 += data.leftY/3;
-  //     pwm_3 += data.leftY/3;
-  //   }
-  //   // strafe, left X joystick
-  //   if(data.leftX > 0.2 or data.leftX < -0.2){
-  //     Serial.println("Strafing");
-  //     pwm_0 += data.leftX/3;
-  //     pwm_1 += -data.leftX/3;
-  //     pwm_2 += data.leftX/3;
-  //     pwm_3 += -data.leftX/3;
+    // forward or backward, left Y joystick
+    if(data.leftY > 0.2 or data.leftY < -0.2){
+      Serial.println("Forward/Backward");
+      pwm_0 += data.leftY/3;
+      pwm_1 += data.leftY/3;
+      pwm_2 += data.leftY/3;
+      pwm_3 += data.leftY/3;
+    }
+    // strafe, left X joystick
+    if(data.leftX > 0.2 or data.leftX < -0.2){
+      Serial.println("Strafing");
+      pwm_0 += -data.leftX/3;
+      pwm_1 += data.leftX/3;
+      pwm_2 += -data.leftX/3;
+      pwm_3 += data.leftX/3;
 
-  //   }
-  //   // turn, right X joystick
-  //   if(data.rightX > 0.2 or data.rightX < -0.2){
-  //     Serial.println("Turning");
-  //     pwm_0 += -data.rightX/3;
-  //     pwm_1 += data.rightX/3;
-  //     pwm_2 += data.rightX/3;
-  //     pwm_3 += -data.rightX/3;
-  //   }
-  //   Serial.println(pwm_0);
-  //   Serial.println(pwm_1);
-  //   Serial.println(pwm_2);
-  //   Serial.println(pwm_3);
-  //   motors[0].drive(-pwm_0);
-  //   motors[1].drive(-pwm_1);
-  //   motors[2].drive(pwm_2);
-  //   motors[3].drive(pwm_3);
+    }
+    // turn, right X joystick
+    if(data.rightX > 0.2 or data.rightX < -0.2){
+      Serial.println("Turning");
+      pwm_0 += -data.rightX/3;
+      pwm_1 += data.rightX/3;
+      pwm_2 += data.rightX/3;
+      pwm_3 += -data.rightX/3;
+    }
+    Serial.println(pwm_0);
+    Serial.println(pwm_1);
+    Serial.println(pwm_2);
+    Serial.println(pwm_3);
+    motors[0].drive(-pwm_0);
+    motors[1].drive(-pwm_1);
+    motors[2].drive(pwm_2);
+    motors[3].drive(pwm_3);
 
-  // }
+  }
   
 }
