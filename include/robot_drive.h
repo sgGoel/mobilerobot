@@ -14,5 +14,6 @@
 void setupDrive();
 void updateSetpoints(double left, double right);
 void updatePIDs();
+void AWDupdateSetpoints(double m0, double m1, double m2, double m3);
 
 #endif // ROBOT_DRIVE_H
