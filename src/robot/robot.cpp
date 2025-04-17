@@ -7,16 +7,16 @@
 // get these values right!!!
 #define DIR_PIN_FM1 34
 #define PWM_PIN_FM1 7
-//#define LEDC_CHANNEL_FM1 0
+#define LEDC_CHANNEL_FM1 0
 #define DIR_PIN_FM2 3
 #define PWM_PIN_FM2 6
-//#define LEDC_CHANNEL_FM2 1
+#define LEDC_CHANNEL_FM2 0
 #define DIR_PIN_RM1 39
 #define PWM_PIN_RM1 41
-//#define LEDC_CHANNEL_RM1 2
+#define LEDC_CHANNEL_RM1 0
 #define DIR_PIN_RM2 40
 #define PWM_PIN_RM2 42
-//#define LEDC_CHANNEL_RM2 3
+#define LEDC_CHANNEL_RM2 0
 
 // motor PWMs
 double pwm_0; // backwards
