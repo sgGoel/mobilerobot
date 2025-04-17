@@ -77,14 +77,13 @@ void setup() {
 
 
 void loop() {
-  Serial.println("in the loop!");
+  //Serial.println("in the loop!");
   //readJoysticks();
   //readSwitches();
   //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
   //printData();  // Prints data via serial port
-  delay(20);
 
   // ADDED
   if (Serial.available() > 0) {
@@ -93,31 +92,45 @@ void loop() {
     Serial.println(input);
     if (input == "w"){
       //Forward command
-      motors[1].drive(0.5);
+      motors[1].drive(-0.5);
       motors[2].drive(0.5);
       motors[3].drive(0.5);
-      motors[0].drive(0.5);
+      motors[0].drive(-0.5);
     }
     else if (input == "s"){
       //Back command
-      motors[1].drive(-0.5);
-      motors[2].drive(-0.5);
-      motors[3].drive(-0.5);
-      motors[0].drive(-0.5);
-    }
-    else if (input == "a"){
-      //Left command
       motors[1].drive(0.5);
       motors[2].drive(-0.5);
       motors[3].drive(-0.5);
       motors[0].drive(0.5);
     }
-    else if (input == "d"){
-      //Right command
-      motors[1].drive(-0.5);
-      motors[2].drive(0.5);
+    else if (input == "a"){
+      //Turn Left command
+      motors[1].drive(0.5);
+      motors[2].drive(-0.5);
       motors[3].drive(0.5);
       motors[0].drive(-0.5);
+    }
+    else if (input == "d"){
+      //Turn Right command
+      motors[1].drive(-0.5);
+      motors[2].drive(0.5);
+      motors[3].drive(-0.5);
+      motors[0].drive(0.5);
+    }
+    else if (input == "q"){
+      //Strafe Left command
+      motors[1].drive(0.5);
+      motors[2].drive(0.5);
+      motors[3].drive(-0.5);
+      motors[0].drive(-0.5);
+    }
+    else if (input == "e"){
+      //Strafe Right command
+      motors[1].drive(-0.5);
+      motors[2].drive(-0.5);
+      motors[3].drive(0.5);
+      motors[0].drive(0.5);
     }
     else if (input == " "){
       //Stop command
@@ -129,10 +142,10 @@ void loop() {
   }
 
   // test, all forward, 50% pwm
-//  motors[1].drive(-0.5);
-//  motors[2].drive(0.5);
-//  motors[3].drive(0.5);
-//  motors[0].drive(-0.5);
+  // motors[1].drive(0.5);
+  // motors[2].drive(-0.5);
+  // motors[3].drive(0.5);
+  // motors[0].drive(-0.5);
 
   // // might be right or left, unsure
   // if(data.swch1){
