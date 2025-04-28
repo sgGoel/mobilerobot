@@ -2,6 +2,8 @@
 //#include "remote.h"
 #include "MotorDriver.h"
 
+#include "EncoderVelocity.h" 
+
 // get these values right!!!
 #define DIR_PIN_FM1 34
 #define PWM_PIN_FM1 7
@@ -47,6 +49,8 @@ MotorDriver motors[4] = { {DIR_PIN_RM1, PWM_PIN_RM1, 0}, {DIR_PIN_RM2, PWM_PIN_R
                                    {DIR_PIN_FM1, PWM_PIN_FM1, 2}, {DIR_PIN_FM2, PWM_PIN_FM2, 3} };
 
                                    // 0 is RM1, 1 is RM2, 2 is FM1, 3 is FM2
+
+extern EncoderVelocity encoders[NUM_MOTORS];                                   
 
 void setup() {
   //ums3.begin();

@@ -39,3 +39,8 @@ void printGyro(GyroReadings gyroReadings){
 void printGyroDeg(GyroReadings gyroReadings){
     Serial.printf("Roll Rate (deg/s): %.2f Pitch Rate (deg/s): %.2f Yaw Rate (deg/s): %.2f\n", gyroReadings.rollRate * RAD_2_DEG, gyroReadings.pitchRate * RAD_2_DEG, gyroReadings.yawRate * RAD_2_DEG);
 }
+
+// adding nice printing for position
+void printPosition(Vector3 pos){
+    Serial.printf("x: %.2f, y: %.2f, z: %.2f", pos.x, pos.y, pos.z);
+}
