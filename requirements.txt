@@ -1,6 +1,7 @@
 # python 3.13.1
 numpy
 pyapriltags
-transformersp
-cv2
+transformers
+opencv-python
 torch
+pillow
