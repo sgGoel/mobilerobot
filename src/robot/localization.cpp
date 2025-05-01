@@ -62,6 +62,10 @@ void readIMU() {
     // printGyroDeg(imu.getGyroReadings());
 }
 
+void setup(){
+    
+}
+
 void loop(){
     // NOTE: commented out for testing purposees (want to use serial monitor differently for testing vs production)
     /*if (Serial.available() > 0) {

@@ -97,6 +97,8 @@ void IMU::update() {
             velocity.y += ay_w * dt;
             position.x += velocity.x * dt;
             position.y += velocity.y * dt;
+
+            Serial.printf("Timestamp: %.3f, Yaw: %.3f, ax: %3.f, ay: %3.f, vx: %3.f, vy: %3.f: ", dt, yaw, ax, ay, velocity.x, velocity.y);
         }
         lastTimestamp = now;
         imuDataReady = false;
