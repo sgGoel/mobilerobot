@@ -4,8 +4,7 @@
 
 // Servo Inclusions
 #include <Wire.h>
-//#include <Adafruit_PWMServoDriver.h>
-#include <ESP32Servo.h>
+#include <Adafruit_PWMServoDriver.h>
 
 // Stepper Inclusions
 #include <UMS3.h>
@@ -15,34 +14,27 @@
 
 // Servo Definitions
 // Create the PWM driver object
-// Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
-// # define SERVO_FREQ = 60
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // These values depend on your servo, usually around these
-#define SERVOMIN  500 // Minimum pulse length count (0 degrees)
-#define SERVOMAX  2500 // Maximum pulse length count (180 degrees)
+#define SERVOMIN  150 // Minimum pulse length count (0 degrees)
+#define SERVOMAX  600 // Maximum pulse length count (180 degrees)
 
 #define SERVO_CHANNEL 0 // which output 0-15 on the PCA9685
 int angle = 0;
 long Servo_Time = 0;
-long dt_Servo = 500;
-
-// Servo Library Version
-Servo myservo;  // create servo object to control a servo
-// 16 servo objects can be created on the ESP32
-int pos = 0;    // variable to store the servo position
-int servoPin = 38;
-
+long dt_Servo = 2000;
 
 // Stepper Definitions
 int Step_Time = 0;
 long dt_Step = 2;
-bool wasHigh = false;
+bool wasHigh = true;
 int Step_Up = 0;
 UMS3 ums3;
 
-
+bool navigating = true;
+bool pickup = true;
+bool dropoff = false;
 
 void setup() {
   Serial.begin();
@@ -53,14 +45,10 @@ void setup() {
   Serial.println("Force Sensor Activated");
 
   // Servo
-  // Serial.println("Starting PCA9685 Servo Test");
-  Serial.println("Attaching Servo");
-  ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
-	myservo.setPeriodHertz(60);    // nonstandard 60 hz servo
-	myservo.attach(servoPin, 500, 2500); // attaches the servo on pin 38 to the servo object
+  Serial.println("Starting PCA9685 Servo Test");
+
+  pwm.begin();
+  pwm.setPWMFreq(50); // Analog servos run at ~50 Hz
 
   Serial.println("Servo Activated");
 
@@ -74,25 +62,22 @@ void setup() {
 }
 
 void loop() {
+  // testing 
+  {  
   // Force Sensor reading
   int analogReading = analogRead(FORCE_SENSOR_PIN);
 
   //Move servo
   if(millis() - Servo_Time > dt_Servo){
-
     Servo_Time = millis();
-    //old
-    // uint16_t pulselen = map(angle, 0, 180, SERVOMIN, SERVOMAX);
-    // uint16_t new_pulselen = (long(angle)/180.0)*(SERVOMAX - SERVOMIN) + SERVOMIN;
-    // pwm.setPWM(SERVO_CHANNEL, 0, new_pulselen);
-    
-    //new
-    angle = (angle+10) % 190;
-    // // delay(100);
+    uint16_t pulselen = map(angle, 0, 180, SERVOMIN, SERVOMAX);
+    pwm.setPWM(SERVO_CHANNEL, 0, pulselen);
+    angle = (angle+90)%180;
+    // delay(100);
   }
 
   //Move Stepper
-  if(false){ // just commented out so it does not go(millis() - Step_Time > dt_Step){ 
+  if(millis() - Step_Time > dt_Step){
     Step_Time = millis();
     digitalWrite(15,HIGH);
     if(wasHigh){
@@ -148,6 +133,29 @@ void loop() {
   }
 
   Serial.println();
+}
 
+    // use pyserial here in the loop to see when it's time to go into man mode (the loop automatically takes us out of man mode)
+
+    // glory to his kingdom
+    while(!navigating){
+
+        if(pickup) {
+        // make sure the stepper is as low as possible and the servo is open as much as possible
+        
+        // start the servo closing until the force sensor reads a nonzero value
+
+        // when the force sensor begins to read, set a setpoint (prob the max??) and control it open loop? 
+
+        // once this is done, turn 
+
+        } else if(dropoff){
+        // move the stepper motor down as low as possible
+
+        // open the servo as far as possible
+        } else {
+            navigating = true;
+        }
+    }
 
 }
