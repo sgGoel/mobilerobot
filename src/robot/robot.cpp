@@ -76,8 +76,8 @@ void setup() {
 
 
 void loop() {
-  readJoysticks();
-  readSwitches();
+  //readJoysticks();
+  //readSwitches();
   //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
