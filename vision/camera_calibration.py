@@ -33,12 +33,12 @@ def main():
     objp *= square_size
 
     # Open the default camera (device index 0)
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap = cv2.VideoCapture(0)#, cv2.CAP_DSHOW)
+    """cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cap.set(cv2.CAP_PROP_FOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G') )
+    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G') )"""
 
     if not cap.isOpened():
         print("Could not open webcam.")
@@ -48,8 +48,11 @@ def main():
     print("Press 'c' to calibrate using all saved frames.")
     print("Press 'q' to quit without calibrating (or quit after calibration).")
 
+    i = 0
     while True:
         ret, frame = cap.read()
+        #print("reading frames, ", i) #debugging latency
+        i += 1
         if not ret:
             print("Failed to read from camera.")
             break
@@ -67,7 +70,7 @@ def main():
 
         # Show the live feed
         cv2.imshow('Calibration - Live Feed', frame)
-        key = cv2.waitKey(1) & 0xFF
+        key = cv2.waitKey(100) & 0xFF
         
         if key == ord('q'):
             # Quit the program

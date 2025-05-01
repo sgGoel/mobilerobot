@@ -1,5 +1,5 @@
 from apriltags import *
-from objectdetection import *
+from objectdetection import * #TODO: universal import!
 
 import numpy as np
 import cv2 as cv
@@ -14,7 +14,7 @@ def main():
         # Capture frame-by-frame
         ret, frame = cap.read()
 
-        pe = compute_robot_pose(frame)
+        #pe = compute_robot_pose(frame)
     
         # if frame is read correctly ret is True
         if not ret:
