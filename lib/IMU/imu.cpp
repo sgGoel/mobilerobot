@@ -33,6 +33,10 @@ void IMU::setReports() {
     if (!bno08x.enableReport(SH2_GYROSCOPE_CALIBRATED, 1000)) {
         Serial.println("Could not enable gyroscope");
     }
+    // adding acceleration report
+    if (!bno08x.enableReport(SH2_LINEAR_ACCELERATION, 100)) { //TODO: probably want to adjust this value, and the IMU_DELAY in localization.cpp
+        Serial.println("Could not enable linear acceleration");
+    }
 }
 
 void IMU::readIMU() {
@@ -62,12 +66,41 @@ void IMU::readIMU() {
             gyroReadings.pitchRate = sensorValue.un.gyroscope.y;
             gyroReadings.yawRate= sensorValue.un.gyroscope.z;
         break;
+
+        case SH2_LINEAR_ACCELERATION:
+            accelReadings.x = sensorValue.un.linearAcceleration.x;
+            accelReadings.y = sensorValue.un.linearAcceleration.y;
+            accelReadings.z = sensorValue.un.linearAcceleration.z;
+        break;
     }  
 }
 
 void IMU::update() {
     if (imuDataReady) {
         readIMU();
+        // thanks chat for suggesting modification
+        // compute dt (difference between lastTimestamp and curent time)
+        uint32_t now = micros();
+        if (lastTimestamp != 0) {
+            double dt = (now - lastTimestamp) * 1e-6;   // unit = secs
+
+            // rotate body acceleration into the world frame (assuming 2d yaw)
+            double yaw = eulerAngles.yaw; // radians
+            double ax = accelReadings.x;
+            double ay = accelReadings.y;
+            double ax_w = ax * cos(yaw) - ay * sin(yaw);
+            double ay_w = ax * sin(yaw) + ay * cos(yaw);
+
+            // integrate twice (to get velocity, then position)
+            // NOTE: position will be quite noisy
+            velocity.x += ax_w * dt;
+            velocity.y += ay_w * dt;
+            position.x += velocity.x * dt;
+            position.y += velocity.y * dt;
+
+            Serial.printf("Timestamp: %.3f, Yaw: %.3f, ax: %3.f, ay: %3.f, vx: %3.f, vy: %3.f: ", dt, yaw, ax, ay, velocity.x, velocity.y);
+        }
+        lastTimestamp = now;
         imuDataReady = false;
     }
 }
