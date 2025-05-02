@@ -47,7 +47,7 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cap.set(cv2.CAP_PROP_FOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))"""
+    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G') )"""
     
     if not cap.isOpened():
         print("Error: Could not open webcam.")
@@ -124,7 +124,7 @@ def main():
             # 6b. Draw the detection on the image
             #----------------------------------------
             # Draw the outline of the tag
-            for i in range(4):
+            """for i in range(4): #NOTE: no need to display
                 cv2.line(
                     undistorted,
                     tuple(corners[i]),
@@ -136,7 +136,7 @@ def main():
             # Draw the tag ID near the center
             center_xy = (int(r.center[0]), int(r.center[1]))
             cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)"""
 
             #----------------------------------------
             # 6c. Get Pose (R, t)
@@ -156,14 +156,16 @@ def main():
             print(f"Detected Tag ID {tag_id}:")
             print(f"  Translation (x, y, z) [m]: {t.ravel()}")
 
-            cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            #NOTE: no need to display
+            #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             
             print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
 
         #------------------------------------------------------------------
         # 7. Show the result
         #------------------------------------------------------------------
-        cv2.imshow('AprilTag Detection', undistorted)
+        #NOTE: no need to display
+        #cv2.imshow('AprilTag Detection', undistorted)
 
         # Press 'q' to quit
         if cv2.waitKey(100) & 0xFF == ord('q'):

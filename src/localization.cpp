@@ -2,14 +2,17 @@
 // read pe from serial (ie jetson)
 // integrate with pe from imu
 
-#include <Arduino.h>
+//#include <Arduino.h>
 //#include "robot.cpp"
+//#include "imu.h"
 
-#include "imu.h"
+#include "localization.h"
+
+IMU imu(IMU_RST, IMU_CS, IMU_INT);
 
 //TODO: integrate the encoder variables and imu variables into one global position
 //TODO: make atomic so can be read by other files? (and move into a header file for cleanliness)
-double currPhiL = 0;
+/*double currPhiL = 0;
 double currPhiR = 0;
 double prevPhiL = 0;
 double prevPhiR = 0;
@@ -26,9 +29,7 @@ double b = 1;
 
 #define IMU_RST 14 //TODO: replace with actual values
 #define IMU_CS 12
-#define IMU_INT 13
-
-IMU imu(IMU_RST, IMU_CS, IMU_INT);
+#define IMU_INT 13*/
 
 /*
 void readEncoders(float theta) {
@@ -57,16 +58,16 @@ void readEncoders(float theta) {
 
 void readIMU() {
     imu.update();
-    printEulerDeg(imu.getEulerAngles());
+    //printEulerDeg(imu.getEulerAngles());
     printPosition(imu.getPosition());
     // printGyroDeg(imu.getGyroReadings());
 }
 
-void setup(){
-    
+void localizationSetup(){
+    imu.setup();
 }
 
-void loop(){
+void localizationLoop(){
     // NOTE: commented out for testing purposees (want to use serial monitor differently for testing vs production)
     /*if (Serial.available() > 0) {
         String pe = Serial.readStringUntil('\n');
