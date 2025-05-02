@@ -5,3 +5,4 @@ transformers
 opencv-python
 torch
 pillow
+pyserial
