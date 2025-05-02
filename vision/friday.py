@@ -2,12 +2,18 @@ import cv2
 import numpy as np
 import pyapriltags as apriltag
 
-def compute_pose_april(frame):
-    pass
+import time
+import serial
 
-# TODO: integrate into compute_pose_april
+# NOTE: assumes camera_calibration has alrady been done
 
-def main():
+def send_april_info():
+    # serial code
+    port_name = '/dev/ttyACM0'
+
+    serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1)
+    data = [0, 0, 0, 0]
+
     #----------------------------------------------------------------------
     # 1. Load camera calibration data
     #----------------------------------------------------------------------
@@ -47,7 +53,7 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     cap.set(cv2.CAP_PROP_FOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))"""
+    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G') )"""
     
     if not cap.isOpened():
         print("Error: Could not open webcam.")
@@ -61,23 +67,6 @@ def main():
             print("Failed to read from the webcam.")
             break
 
-        #------------------------------------------------------------------
-        # 4. Undistort (optional but recommended)
-        #    You can either:
-        #    A) Undistort the entire image once, or
-        #    B) Let the AprilTag detector handle radial distortion by
-        #       passing camera_params directly (estimate_tag_pose=True).
-        #
-        # In practice, the built-in pose estimation in pupil_apriltags
-        # uses the pinhole model with no distortion. So it's best to
-        # either undistort the frame yourself or accept small distortion
-        # errors if your lens is fairly undistorted or uses a cheap camera.
-        #------------------------------------------------------------------
-        # Option A: Undistort the entire frame
-##        h, w = frame.shape[:2]
-##        new_camera_matrix, roi = cv2.getOptimalNewCameraMatrix(
-##            camera_matrix, dist_coeffs, (w, h), 1, (w, h))
-##        undistorted = cv2.undistort(frame, camera_matrix, dist_coeffs, None, new_camera_matrix)
 
         undistorted = frame # This turns off the undistortion
         
@@ -118,13 +107,14 @@ def main():
             # 6a. Extract Tag ID and corners
             #----------------------------------------
             tag_id = r.tag_id
+            #print("detected ID: ", tag_id) #debugging
             corners = r.corners.astype(int)
 
             #----------------------------------------
             # 6b. Draw the detection on the image
             #----------------------------------------
-            # Draw the outline of the tag
-            for i in range(4):
+            # Draw the outline of the tag #NOTE: no display needed
+            """for i in range(4):
                 cv2.line(
                     undistorted,
                     tuple(corners[i]),
@@ -136,7 +126,7 @@ def main():
             # Draw the tag ID near the center
             center_xy = (int(r.center[0]), int(r.center[1]))
             cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)"""
 
             #----------------------------------------
             # 6c. Get Pose (R, t)
@@ -156,14 +146,24 @@ def main():
             print(f"Detected Tag ID {tag_id}:")
             print(f"  Translation (x, y, z) [m]: {t.ravel()}")
 
-            cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            #NOTE: no display needed
+            #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             
             print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
+
+            try:
+                #serial_port.write(bytes("testing", "utf-8"))
+                serial_port.write(bytes(f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}", "utf-8"))
+                print("success")
+            except Exception as e:
+                print(e)
+                pass
+            #time.sleep(1)
 
         #------------------------------------------------------------------
         # 7. Show the result
         #------------------------------------------------------------------
-        cv2.imshow('AprilTag Detection', undistorted)
+        #cv2.imshow('AprilTag Detection', undistorted) #NOTE: no display needed
 
         # Press 'q' to quit
         if cv2.waitKey(100) & 0xFF == ord('q'):
@@ -173,4 +173,4 @@ def main():
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main()
+    send_april_info()
