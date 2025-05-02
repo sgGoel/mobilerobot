@@ -16,3 +16,5 @@ Currently just starter code from lab.
 
 Start pyenv automatically
 Give port permission: sudo chmod 777 /dev/ttyACM0
+aka port itself dymanic (0, 1, 2)
+order is open serial monitor on esp, it asks for a specific port, then before giving it permission to that port have to open that port on the jetson 

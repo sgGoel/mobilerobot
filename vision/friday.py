@@ -114,7 +114,7 @@ def send_april_info():
             # 6b. Draw the detection on the image
             #----------------------------------------
             # Draw the outline of the tag #NOTE: no display needed
-            """for i in range(4):
+            for i in range(4):
                 cv2.line(
                     undistorted,
                     tuple(corners[i]),
@@ -126,7 +126,7 @@ def send_april_info():
             # Draw the tag ID near the center
             center_xy = (int(r.center[0]), int(r.center[1]))
             cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)"""
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             #----------------------------------------
             # 6c. Get Pose (R, t)
@@ -147,7 +147,7 @@ def send_april_info():
             print(f"  Translation (x, y, z) [m]: {t.ravel()}")
 
             #NOTE: no display needed
-            #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             
             print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
 
@@ -163,7 +163,7 @@ def send_april_info():
         #------------------------------------------------------------------
         # 7. Show the result
         #------------------------------------------------------------------
-        #cv2.imshow('AprilTag Detection', undistorted) #NOTE: no display needed
+        cv2.imshow('AprilTag Detection', undistorted) #NOTE: no display needed
 
         # Press 'q' to quit
         if cv2.waitKey(100) & 0xFF == ord('q'):
