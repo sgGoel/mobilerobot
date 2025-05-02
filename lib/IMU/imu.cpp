@@ -76,12 +76,16 @@ void IMU::readIMU() {
 }
 
 void IMU::update() {
+    Serial.print("flag1");
     if (imuDataReady) {
+        Serial.print("flag2");
         readIMU();
         // thanks chat for suggesting modification
         // compute dt (difference between lastTimestamp and curent time)
         uint32_t now = micros();
+        Serial.print("flag3");
         if (lastTimestamp != 0) {
+            Serial.print("flag4");
             double dt = (now - lastTimestamp) * 1e-6;   // unit = secs
 
             // rotate body acceleration into the world frame (assuming 2d yaw)
