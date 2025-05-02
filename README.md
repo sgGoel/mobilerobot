@@ -11,3 +11,8 @@
 # Project structure
 
 Currently just starter code from lab.
+
+# SERVICE TODOS
+
+Start pyenv automatically
+Give port permission: sudo chmod 777 /dev/ttyACM0

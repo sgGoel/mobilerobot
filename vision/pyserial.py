@@ -6,17 +6,19 @@ import serial # Pyserial. Install as "pip install pyserial"
 if __name__ == '__main__':
     
     # Connect to the ESP32. You can use PlatformIO to find its COM port. Remember that the COM port is different in BOOT mode than when code is running!
-    port_name = '/dev/ttyACM2'
+    port_name = '/dev/ttyACM0'
 
     serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1)
     data = [0, 0, 0, 0]
 
     while True:
         try:
-            serial_port.write("testing")
-        except:
+            serial_port.write(bytes("testing", "utf-8"))
+            print("success")
+        except Exception as e:
+            print(e)
             pass
-        time.sleep(0.01)
+        time.sleep(1)
 
     while True:
         try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
