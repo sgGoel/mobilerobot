@@ -4,7 +4,7 @@
 // https://randomnerdtutorials.com/esp-now-esp32-arduino-ide/
 
 // TODO: Replace with receiver mac address.
-uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x41, 0xA0, 0x38};
+uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x41, 0xA3, 0x54};
 
 // Structure example to send data
 // Must match the receiver structure

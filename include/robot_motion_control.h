@@ -2,12 +2,12 @@
 #define ROBOT_MOTION_CONTROL_H
 
 // wheel radius in meters
-#define r 0.06
+extern float r;
 // distance from back wheel to center in meters
-#define b 0.2
+extern float b;
 
+void resetState();
 void followTrajectory();
 void updateOdometry();
-
 
 #endif

@@ -53,10 +53,76 @@ void AWDupdateSetpoints(double m0, double m1, double m2, double m3) {
     setpoints[3] = m3;
 }
 
+// START LAYLA KINEMATICS
+
+float robot_x = 0.0;
+float robot_y = 0.0;
+float robot_theta = 0.0;
+unsigned long lastTime = 0;  // Store time for integration
+
+struct RobotMess {
+    float x;
+    float y;
+    float theta;
+};
+
+RobotMess robotMess;
+
+// Update kinematics based on wheel velocities
+void updateKinematics() {
+    // Time step
+    unsigned long currentTime = millis();
+    float deltaTime = (currentTime - lastTime) / 1000.0;  // in seconds
+    lastTime = currentTime;
+
+    // Get individual wheel velocities
+    float m0 = setpoints[0];  // Front-left wheel velocity
+    float m1 = setpoints[1];  // Front-right wheel velocity
+    float m2 = setpoints[2];  // Rear-left wheel velocity
+    float m3 = setpoints[3];  // Rear-right wheel velocity
+
+    // Robot dimensions (distance from center to wheel)
+    float d = 0.35;  // Assuing 35 cm wheelbase
+
+    // Calculate robot velocities (linear and angular)
+    float v_x = (m0 + m1 + m2 + m3) / 4.0;
+    float v_y = (m0 - m1 + m2 - m3) / 4.0;
+    float omega = (-m0 + m1 - m2 + m3) / (4.0 * d);
+
+    // Update robot position and orientation
+    robot_x += v_x * deltaTime;  // Update x position
+    robot_y += v_y * deltaTime;  // Update y position
+    robot_theta += omega * deltaTime;  // Update orientation
+
+    // Keep theta within the range [0, 2*PI)
+    if (robot_theta >= 2 * PI) {
+        robot_theta -= 2 * PI;
+    } else if (robot_theta < 0) {
+        robot_theta += 2 * PI;
+    }
+
+    robotMess.x = robot_x;
+    robotMess.y = robot_y;
+    robotMess.theta = robot_theta;
+
+    // Print the updated values
+ //   Serial.print("X1: ");
+ //   Serial.print(robot_x);
+ //   Serial.print(", Y1: ");
+ //   Serial.print(robot_y);
+ //   Serial.print(", Theta1: ");
+ //   Serial.println(robot_theta);
+}
+
+// END LAYLA KINEMATICS
+
 void updatePIDs() {
     for (uint8_t i = 0; i < NUM_MOTORS; i++) {
         velocities[i] = pow(-1, i) * encoders[i].getVelocity();
         controlEfforts[i] = pids[i].calculateParallel(velocities[i], setpoints[i]);
         motors[i].drive(controlEfforts[i]);
     }
+    // Layla Added
+    updateKinematics();
+    //end Layla added
 }
