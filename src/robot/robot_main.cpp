@@ -51,7 +51,7 @@ void loop() {
         //            robotMessage.x, robotMessage.y, robotMessage.theta);
     }
 
-    EVERY_N_MILLIS(500) {
+    EVERY_N_MILLIS(500) { //TODO: finetune this delay
         AprilTagData d = loopComm();
         apriltagid = d.id;
         apriltagx = d.x;
