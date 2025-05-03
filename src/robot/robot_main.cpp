@@ -53,10 +53,12 @@ void loop() {
 
     EVERY_N_MILLIS(500) { //TODO: finetune this delay
         AprilTagData d = loopComm();
-        apriltagid = d.id;
-        apriltagx = d.x;
-        apriltagy = d.y;
-        //TODO: do color assignment
+        if (d.id != -1) {
+            apriltagid = d.id;
+            apriltagx = d.x;
+            apriltagy = d.y;
+            colorid = d.col;
+        }
     }
   
 }

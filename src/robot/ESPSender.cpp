@@ -25,16 +25,20 @@ AprilTagData loopComm() {
 
         int id;
         float x, y, z;
-        if (sscanf(buf.c_str(), "@%d@%f@%f@%f", &id, &x, &y, &z) == 4) {
+        int col;
+        if (sscanf(buf.c_str(), "@%d@%f@%f@%f@%f", &id, &x, &y, &z) == 4) {
             Serial.print("id=");   Serial.println(id);
             Serial.print("x=");    Serial.println(x);
             Serial.print("y=");    Serial.println(y);
             Serial.print("z=");    Serial.println(z);
+            Serial.print("col=");  Serial.println(col);
         }
 
         buf.clear();
-        return {id, x, y, z};
+        return {id, x, y, z, col};
     }
+
+    return {-1,-1,-1,-1,-1};
 
     //delay(0.5); //some delay needed so as not to overwhelm microcontroller
 }

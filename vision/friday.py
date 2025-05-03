@@ -7,16 +7,12 @@ import serial
 
 # NOTE: assumes camera_calibration has alrady been done
 
-def send_april_info():
-    # serial code
-    port_name = '/dev/ttyACM0'
+def april_tag_detection(frame):
+    ret_val = ""
 
-    serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1)
+    # serial code
     data = [0, 0, 0, 0]
 
-    #----------------------------------------------------------------------
-    # 1. Load camera calibration data
-    #----------------------------------------------------------------------
     calibration_data = np.load('camera_calibration_live.npz')  # adjust filename
     camera_matrix = calibration_data['camera_matrix']  # shape (3, 3)
     dist_coeffs = calibration_data['dist_coeffs']      # shape (n,) typically (5,) or (8,)
@@ -27,11 +23,6 @@ def send_april_info():
     cx = camera_matrix[0, 2]
     cy = camera_matrix[1, 2]
 
-    #----------------------------------------------------------------------
-    # 2. Set up the AprilTag detector
-    #----------------------------------------------------------------------
-    # For more details on parameters, see:
-    # https://github.com/AprilRobotics/apriltag/wiki/AprilTag-User-Guide
     at_detector = apriltag.Detector(
         families='tag36h11',  # or 'tag25h9', etc.
         nthreads=1,
@@ -45,9 +36,131 @@ def send_april_info():
     # The length of one side of the tag in meters
     TAG_SIZE = 0.10  # 10 cm
 
-    #----------------------------------------------------------------------
-    # 3. Initialize Webcam
-    #----------------------------------------------------------------------
+    print("Press 'q' to quit.")
+
+    undistorted = frame # This turns off the undistortion
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(undistorted, cv2.COLOR_BGR2GRAY)
+
+    results = at_detector.detect(
+        gray,
+        estimate_tag_pose=True,
+        camera_params=[fx, fy, cx, cy],  # from your calibration
+        tag_size=TAG_SIZE
+    )
+
+
+    for r in results: #NOTE: we're only considering the first result, thus should not be using april tag information in cases where we're turning
+
+        tag_id = r.tag_id
+        #print("detected ID: ", tag_id) #debugging
+        corners = r.corners.astype(int)
+
+        # Draw the outline of the tag #NOTE: no display needed
+        for i in range(4):
+            cv2.line(
+                undistorted,
+                tuple(corners[i]),
+                tuple(corners[(i+1) % 4]),
+                (0, 255, 0),
+                2
+            )
+
+        # Draw the tag ID near the center
+        center_xy = (int(r.center[0]), int(r.center[1]))
+        cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+
+        R = r.pose_R  # 3×3 rotation matrix
+        t = r.pose_t  # 3×1 translation vector
+
+        # Convert the rotation matrix to Euler angles, if needed:
+        # (Though you can also use the rotation matrix directly.)
+        # Example (using cv2.Rodrigues):
+        rot_vec, _ = cv2.Rodrigues(R)     # from rotation matrix to rotation vector
+        rot_deg = np.degrees(rot_vec)     # convert to degrees for display if desired
+
+        # Print or display the pose
+        # Note: The translation is in meters, given TAG_SIZE is in meters.
+        # The orientation is with respect to the camera frame.
+        print(f"Detected Tag ID {tag_id}:")
+        print(f"  Translation (x, y, z) [m]: {t.ravel()}")
+
+        #NOTE: no display needed
+        cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+        
+        print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
+
+        try:
+            #serial_port.write(bytes("testing", "utf-8"))
+            ret_val = f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}"
+            print("success")
+        except Exception as e:
+            print(e)
+            pass
+        #time.sleep(1)
+
+    return ret_val
+
+
+def color_detection(frame):
+
+    # HSV color ranges for red (two ranges), blue, and yellow
+    COLOR_RANGES = {
+        'red': [
+            ((0, 100, 100), (10, 255, 255)),
+            ((160, 100, 100), (179, 255, 255)),
+        ],
+        'blue': [((100, 150, 50), (140, 255, 255))],
+        'yellow': [((20, 100, 100), (35, 255, 255))],
+    }
+
+    # Minimum pixel dimensions for the strip
+    # minimum should be more aggressive or def on rectangle should be more aggressive because we don;t want red cagei n background to trigger
+    # maximum should also be more aggressive (OR ratio should be more aggressive)
+    MIN_WIDTH  = 30
+    MIN_HEIGHT = 150
+    MAX_WIDTH = 375
+    MAX_HEIGHT = 375
+    MIN_RATIO = 0.1
+    MAX_RATIO = 0.5
+
+    # 220 vs 50 is the rough height to width ratio
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    detections = []
+    for color, ranges in COLOR_RANGES.items():
+        mask = None
+        for lower, upper in ranges:
+            m = cv2.inRange(hsv, np.array(lower), np.array(upper))
+            mask = m if mask is None else cv2.bitwise_or(mask, m)
+        # clean up noise
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        # find contours
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for c in contours:
+            x,y,w,h = cv2.boundingRect(c)
+            if w >= MIN_WIDTH and h >= MIN_HEIGHT and w/h >= MIN_RATIO and w/h <= MAX_RATIO: #w >= MIN_WIDTH and h >= MIN_HEIGHT and w <= MAX_WIDTH and h <= MAX_HEIGHT and 
+                print(color, x, y, w, h) #DEBUG
+                detections.append((color, (x,y,w,h)))
+                #detections.append(color)
+
+    for color, (x,y,w,h) in detections:
+        # draw and label
+        cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
+        cv2.putText(frame, color, (x, y-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
+        print(f"Detected {color} strip at x={x}, y={y}, w={w}, h={h}")
+
+    return detections
+
+def main():
+    port_name = '/dev/ttyACM0'
+    serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
+
     cap = cv2.VideoCapture(0)#, cv2.CAP_DSHOW)
     """cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -58,112 +171,23 @@ def send_april_info():
     if not cap.isOpened():
         print("Error: Could not open webcam.")
         return
-
-    print("Press 'q' to quit.")
-
+    
     while True:
         ret, frame = cap.read()
+
         if not ret:
             print("Failed to read from the webcam.")
             break
 
-
-        undistorted = frame # This turns off the undistortion
+        at = april_tag_detection(frame) #str
+        col = color_detection(frame) #lst #we'll assume for now that only one color bar is detected
+        cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
         
-        # Convert to grayscale
-        gray = cv2.cvtColor(undistorted, cv2.COLOR_BGR2GRAY)
-        
-        #------------------------------------------------------------------
-        # 5. Detect AprilTags
-        #------------------------------------------------------------------
-        # With pupil_apriltags, you can directly get pose estimation by
-        # providing 'estimate_tag_pose=True' and camera_params + tag_size.
-        # This automatically computes the rotation and translation of the tag.
-        #------------------------------------------------------------------
-        results = at_detector.detect(
-            gray,
-            estimate_tag_pose=True,
-            camera_params=[fx, fy, cx, cy],  # from your calibration
-            tag_size=TAG_SIZE
-        )
-
-        #------------------------------------------------------------------
-        # 6. Process each detection
-        #------------------------------------------------------------------
-        for r in results:
-            # r.tag_id: the ID of the detected tag
-            # r.corners: the (4,2) array of corner coordinates in the image
-            # r.center:  the (x,y) coordinates of the tag center
-            # r.pose_R, r.pose_t: pose of the tag in the camera frame
-            #                    (right-handed coordinate system):
-            #    - R is a 3x3 rotation matrix
-            #    - t is a 3x1 translation vector
-            #
-            # The coordinate system by default: +x to the right, +y down,
-            # and +z forward from the camera's perspective.
-            #
-
-            #----------------------------------------
-            # 6a. Extract Tag ID and corners
-            #----------------------------------------
-            tag_id = r.tag_id
-            #print("detected ID: ", tag_id) #debugging
-            corners = r.corners.astype(int)
-
-            #----------------------------------------
-            # 6b. Draw the detection on the image
-            #----------------------------------------
-            # Draw the outline of the tag #NOTE: no display needed
-            for i in range(4):
-                cv2.line(
-                    undistorted,
-                    tuple(corners[i]),
-                    tuple(corners[(i+1) % 4]),
-                    (0, 255, 0),
-                    2
-                )
-
-            # Draw the tag ID near the center
-            center_xy = (int(r.center[0]), int(r.center[1]))
-            cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-            #----------------------------------------
-            # 6c. Get Pose (R, t)
-            #----------------------------------------
-            R = r.pose_R  # 3×3 rotation matrix
-            t = r.pose_t  # 3×1 translation vector
-
-            # Convert the rotation matrix to Euler angles, if needed:
-            # (Though you can also use the rotation matrix directly.)
-            # Example (using cv2.Rodrigues):
-            rot_vec, _ = cv2.Rodrigues(R)     # from rotation matrix to rotation vector
-            rot_deg = np.degrees(rot_vec)     # convert to degrees for display if desired
-
-            # Print or display the pose
-            # Note: The translation is in meters, given TAG_SIZE is in meters.
-            # The orientation is with respect to the camera frame.
-            print(f"Detected Tag ID {tag_id}:")
-            print(f"  Translation (x, y, z) [m]: {t.ravel()}")
-
-            #NOTE: no display needed
-            cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-            
-            print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
-
-            try:
-                #serial_port.write(bytes("testing", "utf-8"))
-                serial_port.write(bytes(f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}", "utf-8"))
-                print("success")
-            except Exception as e:
-                print(e)
-                pass
-            #time.sleep(1)
-
-        #------------------------------------------------------------------
-        # 7. Show the result
-        #------------------------------------------------------------------
-        cv2.imshow('AprilTag Detection', undistorted) #NOTE: no display needed
+        if (at != "" and len(col) > 0):
+            d = {"red":0, "blue":1, "yellow":2}
+            c = d[col[0][0]] if col[0][0] else -1
+            print(f"{at}@{c}") #DEBUG
+            serial_port.write(bytes(f"{at}@{c}", "utf-8"))
 
         # Press 'q' to quit
         if cv2.waitKey(100) & 0xFF == ord('q'):
@@ -172,5 +196,39 @@ def send_april_info():
     cap.release()
     cv2.destroyAllWindows()
 
+
+
+
+### OLD CODE ###
+
+def finetune_color_detector():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Cannot open camera"); return
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        detections = color_detection(frame)
+        for color, (x,y,w,h) in detections:
+            # draw and label
+            cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
+            cv2.putText(frame, color, (x, y-10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
+            print(f"Detected {color} strip at x={x}, y={y}, w={w}, h={h}")
+
+        cv2.imshow('strip detector', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+#### END OLD CODE ####
+
+
 if __name__ == "__main__":
-    send_april_info()
+    main ()
