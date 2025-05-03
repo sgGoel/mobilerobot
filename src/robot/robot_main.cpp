@@ -7,6 +7,7 @@
 #include "EulerAngles.h"
 #include <Wire.h>
 #include "Adafruit_VL6180X.h"
+#include "esp_sender.h"
 
 void setup() {
     Serial.begin(115200);
@@ -14,6 +15,13 @@ void setup() {
     resetState();
     Serial.print("resetted");
     setupWireless();
+
+    // apriltag integration
+    setupComm();
+    std::atomic<float> apriltagx{10};
+    std::atomic<float> apriltagy{10};
+    std::atomic<int> apriltagid{0}; // color reading from Apriltag
+    std::atomic<int> colorid{0};
 }
 
 int test = 0;
@@ -41,6 +49,14 @@ void loop() {
 
         //Serial.printf("x: %.2f, y: %.2f, theta: %.2f\n",
         //            robotMessage.x, robotMessage.y, robotMessage.theta);
+    }
+
+    EVERY_N_MILLIS(500) {
+        AprilTagData d = loopComm();
+        apriltagid = d.id;
+        apriltagx = d.x;
+        apriltagy = d.y;
+        //TODO: do color assignment
     }
   
 }

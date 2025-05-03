@@ -59,6 +59,8 @@ float b = 2.0;
 bool shouldOpen = false;
 bool shouldClose = false;
 
+std::atomic<float> x{0.0f}; 
+
 // Sets the desired wheel velocities based on desired robot velocity in m/s
 // and k curvature in 1/m representing 1/(radius of curvature)
 void setWheelVelocities(float robotVelocity, float k){
@@ -413,7 +415,7 @@ bool dropoff(String COLOR){
             break;
         // Look for COLOR tag -- 0.3.2
         case 3:
-            // Until robot sees COLOR tag [SKIPPED]// if apriltagx < 0.05
+            // Until robot sees COLOR tag [SKIPPED]// if apriltagx < 0.05 --- say if apriltagid == color id...
             if (Yrobot >= -d3) {
                 // Strafe left
                 Serial.print("STEP 4");
@@ -766,6 +768,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 1");
+                colorid = 1;
                 pickup("YELLOW");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -779,6 +782,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 1");
+                colorid = 1;
                 dropoff("YELLOW");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -793,6 +797,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 2");
+                colorid = 2;
                 pickup("BLUE");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -806,6 +811,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 2");
+                colorid = 2;
                 dropoff("BLUE");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -820,6 +826,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 3");
+                colorid = 3;
                 pickup("RED");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -833,6 +840,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 3");
+                colorid = 3;
                 dropoff("RED");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -847,6 +855,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP Clear");
+                colorid = 4;
                 pickup("CLEAR");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -860,6 +869,7 @@ void followTrajectory() {
             state++;
         } else {
             Serial.print("DROPOFF Clear");
+            colorid = 4;
             clearDropoff();
             Serial.print("cleardropstate");
             Serial.print(cleardropstate);
@@ -951,4 +961,3 @@ void updateOdometry() {
     robotMessage.y += dy;
     robotMessage.theta += dtheta;
 }
-
