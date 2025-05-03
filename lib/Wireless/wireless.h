@@ -32,6 +32,18 @@ struct RobotMessage {
     bool operator==(const RobotMessage& other);
 } ;
 
+// Layla struct
+struct RobotMess {
+    unsigned long millis;
+    float x;
+    float y;
+    float theta;
+
+    void print();
+    bool operator==(const RobotMess& other);
+} ;
+// end layla struct
+
 void onSendData(const uint8_t * mac, esp_now_send_status_t status);
 void onRecvData(const uint8_t * mac, const uint8_t *data, int len);
 void setupWireless();
