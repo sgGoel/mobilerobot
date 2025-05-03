@@ -8,7 +8,7 @@ import serial
 # NOTE: assumes camera_calibration has alrady been done
 
 def april_tag_detection(frame):
-    ret_val = ""
+    ret_val = []
 
     # serial code
     data = [0, 0, 0, 0]
@@ -35,8 +35,6 @@ def april_tag_detection(frame):
 
     # The length of one side of the tag in meters
     TAG_SIZE = 0.10  # 10 cm
-
-    print("Press 'q' to quit.")
 
     undistorted = frame # This turns off the undistortion
     
@@ -95,7 +93,8 @@ def april_tag_detection(frame):
 
         try:
             #serial_port.write(bytes("testing", "utf-8"))
-            ret_val = f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}"
+            ret_val = [tag_id, round(float(t[0]),2), round(float(t[1]),2), round(float(t[2]),2)]
+            #f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}"
             print("success")
         except Exception as e:
             print(e)
@@ -158,7 +157,7 @@ def color_detection(frame):
     return detections
 
 def main():
-    port_name = '/dev/ttyACM0'
+    port_name = '/dev/ttyACM0' #sudo chmod 777 portname
     serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
 
     cap = cv2.VideoCapture(0)#, cv2.CAP_DSHOW)
@@ -183,11 +182,17 @@ def main():
         col = color_detection(frame) #lst #we'll assume for now that only one color bar is detected
         cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
         
-        if (at != "" and len(col) > 0):
+        if (len(at) > 0 and len(col) > 0):
             d = {"red":0, "blue":1, "yellow":2}
             c = d[col[0][0]] if col[0][0] else -1
-            print(f"{at}@{c}") #DEBUG
-            serial_port.write(bytes(f"{at}@{c}", "utf-8"))
+            #s = at + "@" + str(c)
+            #print(s) #DEBUG
+            try:
+                #serial_port.write(bytes(s, "utf-8"))
+                print(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}")
+                serial_port.write(bytes(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}", "utf-8"))
+            except Exception as e:
+                print(e)
 
         # Press 'q' to quit
         if cv2.waitKey(100) & 0xFF == ord('q'):

@@ -21,12 +21,12 @@ AprilTagData loopComm() {
 
     if (!buf.empty()) {                        
         // Serial.write() outputs raw bytes; no format conversion, no NULL terminator needed
-        Serial.write(reinterpret_cast<const uint8_t*>(buf.data()), buf.size()); //debug
+        //Serial.write(reinterpret_cast<const uint8_t*>(buf.data()), buf.size()); //debug
 
         int id;
         float x, y, z;
         int col;
-        if (sscanf(buf.c_str(), "@%d@%f@%f@%f@%f", &id, &x, &y, &z) == 4) {
+        if (sscanf(buf.c_str(), "@%d@%f@%f@%f@%d", &id, &x, &y, &z, &col) == 5) {
             Serial.print("id=");   Serial.println(id);
             Serial.print("x=");    Serial.println(x);
             Serial.print("y=");    Serial.println(y);

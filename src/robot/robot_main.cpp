@@ -8,6 +8,12 @@
 #include <Wire.h>
 #include "Adafruit_VL6180X.h"
 #include "esp_sender.h"
+#include <iostream>
+
+std::atomic<float> apriltagx{10};
+std::atomic<float> apriltagy{10};
+std::atomic<int> apriltagid{0};
+std::atomic<int> colorid{0}; // color reading from Apriltag
 
 void setup() {
     Serial.begin(115200);
@@ -18,10 +24,6 @@ void setup() {
 
     // apriltag integration
     setupComm();
-    std::atomic<float> apriltagx{10};
-    std::atomic<float> apriltagy{10};
-    std::atomic<int> apriltagid{0}; // color reading from Apriltag
-    std::atomic<int> colorid{0};
 }
 
 int test = 0;
@@ -54,11 +56,13 @@ void loop() {
     EVERY_N_MILLIS(500) { //TODO: finetune this delay
         AprilTagData d = loopComm();
         if (d.id != -1) {
-            apriltagid = d.id;
-            apriltagx = d.x;
-            apriltagy = d.y;
-            colorid = d.col;
+            apriltagid.store(d.id);
+            apriltagx.store(d.x);
+            apriltagy.store(d.y);
+            colorid.store(d.col);
         }
+        //d::cout << apriltagid<< ", " << apriltagx << ", " apriltagy;
+        //Serial.printf("%d, %d, %.2f, %.2f", apriltagid.load(), colorid.load(), apriltagx.load(), apriltagy.load()); //debug
     }
   
 }

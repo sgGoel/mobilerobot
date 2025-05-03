@@ -10,7 +10,7 @@ extern float b;
 
 extern std::atomic<float> apriltagx;
 extern std::atomic<float> apriltagy;
-extern std::atomic<int> apriltagid; // color reading from Apriltag
+extern std::atomic<int> apriltagid; // apriltag id
 extern std::atomic<int> colorid; // color reading from Apriltag -- 1 = yellow, 2 = blue, 3 = red, 4 = clear
 
 void resetState();
