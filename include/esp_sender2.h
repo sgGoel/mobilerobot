@@ -5,3 +5,5 @@ struct SensorData { int task; };
 
 void setupComm();
 SensorData loopComm();
+
+void sendToJetson();

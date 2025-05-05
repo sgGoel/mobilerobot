@@ -209,8 +209,8 @@ void loop() {
 
 
     // glory to his kingdom
-    if(activate){
-        Serial.println("Activated!");
+    /*while(!navigating){
+
         if(pickup) {
         // make sure the stepper is as low as possible and the servo is open as much as possible 
         // hope();
@@ -230,6 +230,10 @@ void loop() {
         open_gripper();
         dropoff = false;
         pickup = true;
+        } else {
+            navigating = true;
+        }
+    }*/
 
         Serial.println("Dropoff Complete");
 
