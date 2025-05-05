@@ -11,6 +11,7 @@ void setupComm() {
     if (Serial.available() > 0){ //TODO: test this setup mechanism
        int incomingByte = Serial.read();
     }
+    //delay(30);
 }
 
 // read from Serial port version of loop() function

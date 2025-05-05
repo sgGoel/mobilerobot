@@ -21,6 +21,8 @@ SensorData loopComm() {
         buf.push_back( static_cast<char>(Serial.read()) );
     }
 
+    //Serial.println("received on second thing!");
+
     if (!buf.empty()) {                        
         int task;
         if (sscanf(buf.c_str(), "@%d", &task) == 1) {

@@ -185,12 +185,16 @@ def read_micro(deli, in_port, out_port):
                 c2 = esp32_output[2:].strip()[1]
                 #print(f"debugging {c1} {c2}")
 
-                if (c1 == deli):
-                    #print("writing to out port!")
+                #print(str(c1) == str(deli))
+                print(c1, c2, deli)
+                if (str(c1) == str(deli)):
                     if (deli == "#"):
+                        print("writing to out port!")
                         out_port.write(bytes(f"@{c2}", "utf-8")) #TODO: test task variable being updates on ESPSender2.cpp
                     else:
+                        print("writing to out port!")
                         out_port.write(bytes(f"&{c2}", "utf-8"))
+                        
                 
                 in_port.reset_input_buffer()
             else:

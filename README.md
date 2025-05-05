@@ -25,6 +25,7 @@ python ./vision/friday.py
 (password is admin, btw)
 
 NOTE: must run from mobilerobot directory (and that's the directory that PYTHONPATH should point to as well)
+NOTE: please connect +_reset main board before connect + reset sensor board
 
 # Test
 
