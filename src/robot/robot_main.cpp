@@ -32,6 +32,8 @@ void setup() {
     ums3.begin();
     initReceiver();
 
+    delay(10000);
+
     //gripper
     /*initPeripherals();
     initRotary();  
@@ -54,18 +56,18 @@ void loop() {
     //TODO: bring back delay for serial connection
 
     //else
-    EVERY_N_MILLIS(20) {
+    EVERY_N_MILLIS(200) { ///20
         followTrajectory();
         //manipulatorLoop();
     }
 
     // Update PID at 200Hz
-    EVERY_N_MILLIS(5) {
+    EVERY_N_MILLIS(50) { //5
         updatePIDs();
     }
 
     // Send and print robot values at 20Hz
-    EVERY_N_MILLIS(50) {
+    EVERY_N_MILLIS(500) { //50
         updateOdometry();
         //sendRobotData();
 

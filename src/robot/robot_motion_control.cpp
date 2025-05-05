@@ -190,22 +190,22 @@ void manualDrive(){
             updateSpeeds(0,0,0,0);
             if(pickupButton){
               delay(1000);
-              //sendToJetson(2);
+              sendToJetson(2);
               pickupButton = false;
               dropoffButton = true;
 
-              //v.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              //taskComp.store(false);
+              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              taskComp.store(false);
         
             } else if(dropoffButton){
               delay(1000);
               //gripperOpen();
-              //sendToJetson(1);
+              sendToJetson(1);
               pickupButton = true;
               dropoffButton = false;
 
-              //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              //taskComp.store(false);
+              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              taskComp.store(false);
             }
         }
 
@@ -367,14 +367,14 @@ bool pickup(String COLOR) {
 
         case 1: // GRIPPER - fake!
             Serial.print("STEP 4");
-            //sendToJetson(1);
+            sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            //taskComp.store(false);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Search for COLOR tag -- 0.4.2
@@ -457,14 +457,14 @@ bool pickup(String COLOR) {
         case 4: // GRIPPER !
             Serial.print("STEP 4");
             //gripperClose();
-            //sendToJetson(2);
+            sendToJetson(2);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            //taskComp.store(false);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         case 5:
@@ -543,7 +543,9 @@ bool dropoff(String COLOR){
     Serial.print(", Y2: ");
     Serial.print(Yrobot);
     Serial.print(", Theta2: ");
-    Serial.println(Trobot);
+    Serial.print(Trobot);
+    Serial.print(", dropoffstate: ");
+    Serial.println(dropoffstate);
 
     switch (dropoffstate){
         // Position for dropoff -- 0.3.1
@@ -616,6 +618,9 @@ bool dropoff(String COLOR){
         // Look for COLOR tag -- 0.3.2
         case 3:
             // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
+            Serial.print("here: ");
+            Serial.print(desiredColor);
+            Serial.println(colorid.load());
             if (!((colorid.load() == desiredColor) && abs(apriltagx.load()) < error)){
                 // Strafe left
                 Serial.print("STEP 4");
@@ -639,14 +644,14 @@ bool dropoff(String COLOR){
         // Release box-- 0.3.3 
         case 4: // GRIPPER !
             Serial.print("STEP 5");
-            //sendToJetson(1);
+            sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            //taskComp.store(false);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Push box into parking spot -- 0.3.4
@@ -665,7 +670,7 @@ bool dropoff(String COLOR){
             break;
         
         case 6:
-            //sendToJetson(2);
+            sendToJetson(2);
             // Until robot has achieved a translation of dgripper m
             if (Xrobot <= 0) {
                 // Move in a straight line forward
@@ -682,8 +687,8 @@ bool dropoff(String COLOR){
                 dropoffstate++;
             }
 
-            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            //taskComp.store(false);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Return to setpoint -- 0.3.5 
@@ -886,14 +891,14 @@ bool clearDropoff() {
         //[SKIPPED]--- open gripper and release box
         case 4: // GRIPPER !
             Serial.print("STEP 5");
-            //sendToJetson(1);
+            sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            //taskComp.store(false);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
 
             break;
 
@@ -1030,7 +1035,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 1");
-                desiredColor = 0;
+                desiredColor = 2;
                 if(data.swch2){
                     Serial.println("Switching to manual");
                     Xrobot = 0;
@@ -1059,7 +1064,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 1");
-                desiredColor = 0;
+                desiredColor = 2;
                 if(data.swch2){
                     Serial.println("Switching to manual");
                     Xrobot = 0;
@@ -1148,7 +1153,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 3");
-                desiredColor = 2;
+                desiredColor = 0;
                 if(data.swch2){
                     Serial.println("Switching to manual");
                     Xrobot = 0;
@@ -1177,7 +1182,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 3");
-                desiredColor = 2;
+                desiredColor = 0;
                 if(data.swch2){
                     Serial.println("Switching to manual");
                     Xrobot = 0;

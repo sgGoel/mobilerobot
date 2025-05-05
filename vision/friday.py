@@ -103,13 +103,13 @@ def april_tag_detection(frame):
         #NOTE: no display needed
         #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
         
-        print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
+        #print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
 
         try:
             #serial_port.write(bytes("testing", "utf-8"))
             ret_val = [tag_id, round(float(t[0]),2), round(float(t[1]),2), round(float(t[2]),2)]
             #f"@{tag_id}@{round(float(t[0]),2)}@{round(float(t[1]),2)}@{round(float(t[2]),2)}"
-            print("success")
+            #print("success")
         except Exception as e:
             print(e)
             pass
@@ -187,19 +187,19 @@ def read_micro(deli, in_port, out_port):
                 #print(f"debugging {c1} {c2}")
 
                 #print(str(c1) == str(deli))
-                print(c1, c2, deli)
+                #print(c1, c2, deli)
                 if (str(c1) == str(deli)):
                     if (deli == "#"):
-                        print("writing to out port!")
+                        print(f"writing to out port1!@{c2}")
                         out_port.write(bytes(f"@{c2}", "utf-8")) #TODO: test task variable being updates on ESPSender2.cpp
                     else:
-                        print("writing to out port!")
+                        print("writing to out port2!")
                         out_port.write(bytes(f"&{c2}", "utf-8"))
                         
                 
                 in_port.reset_input_buffer()
             else:
-                time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
+                time.sleep(0.5) # Sleep for at least 1 ms to give the loop a chance to rest
         except:
             pass
 
@@ -231,7 +231,7 @@ def main():
             else:
                 c = -1
             try:
-                print(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}")
+                #print(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}")
                 #write_q1.put((at[0], at[1], at[2], at[3], c))
                 serial_port1.write(bytes(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}", "utf-8"))
             except Exception as e:
