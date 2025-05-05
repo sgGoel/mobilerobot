@@ -51,6 +51,7 @@ AprilTagData loopComm() {
     //delay(0.5); //some delay needed so as not to overwhelm microcontroller
 }
 
+//1 = pickup, 2 = dropoff
 void sendToJetson(int task){
     if (task == 1){
         Serial.println("#1"); 

@@ -216,7 +216,7 @@ void loop() {
       if (d.task != -1) { 
           task.store(d.task); //1 = pickup, 2 = dropoff
           //TODO: for Alessandro -- execute the task here, probably.
-
+            //call sendToJetson() when you're done (so the state machine knows you're done)
       }
     }
 

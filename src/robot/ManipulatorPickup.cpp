@@ -1,3 +1,5 @@
+//Alessandro -- please transfer any code for ManipulatorPickup.cpp into the sensors version of this file
+
 
 // Force Inclusions
 #include <Arduino.h>

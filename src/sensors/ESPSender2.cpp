@@ -13,7 +13,7 @@ void setupComm() {
 // (not inherently incompatible with writing to Serial port, but the writing capability is just not needed in this version)
 SensorData loopComm() {
 
-    sendToJetson();
+    //sendToJetson();
 
     static std::string buf;                    // keep it between calls
 
@@ -22,9 +22,6 @@ SensorData loopComm() {
     }
 
     if (!buf.empty()) {                        
-        // Serial.write() outputs raw bytes; no format conversion, no NULL terminator needed
-        //Serial.write(reinterpret_cast<const uint8_t*>(buf.data()), buf.size()); //debug
-
         int task;
         if (sscanf(buf.c_str(), "@%d", &task) == 1) {
             Serial.print("task=");   Serial.println(task);
@@ -40,7 +37,7 @@ SensorData loopComm() {
 }
 
 void sendToJetson(){
-    Serial.println("&1");
+    Serial.println("&1"); //"I'm done!"
 }
 
 

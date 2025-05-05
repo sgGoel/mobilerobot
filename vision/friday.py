@@ -169,16 +169,6 @@ def color_detection(frame):
 
     return detections
 
-def io_thread(ser, write_q, read_q):
-    while True:
-        data = write_q.get()
-        if data:
-            # TODO: CASES FOR QUEUES
-            print(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}")
-            ser.write(bytes(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}"), "utf-8")
-            #ser.flush()
-        time.sleep(0.1)
-
 def read_micro(deli, in_port, out_port):
     data = [0, 0, 0, 0]
     while True:
