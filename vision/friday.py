@@ -69,7 +69,7 @@ def april_tag_detection(frame):
         corners = r.corners.astype(int)
 
         # Draw the outline of the tag #NOTE: no display needed
-        for i in range(4):
+        """for i in range(4):
             cv2.line(
                 undistorted,
                 tuple(corners[i]),
@@ -81,7 +81,7 @@ def april_tag_detection(frame):
         # Draw the tag ID near the center
         center_xy = (int(r.center[0]), int(r.center[1]))
         cv2.putText(undistorted, f"ID: {tag_id}", center_xy,
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)"""
 
 
         R = r.pose_R  # 3×3 rotation matrix
@@ -100,7 +100,7 @@ def april_tag_detection(frame):
         print(f"  Translation (x, y, z) [m]: {t.ravel()}")
 
         #NOTE: no display needed
-        cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+        #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
         
         print(f"  Rotation vector [deg]:     {rot_deg.ravel()}")
 

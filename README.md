@@ -16,12 +16,15 @@ Start both sets of code (by hitting reset on both microcontrollers)
 Connect your laptop to the jetson via the usb c port. Run:
 ssh lilo@192.168.55.1
 Your terminal is now connected to the jetson terminal. You should be able to:
-cd Downloads/2.12/mobilrobot
+cd Downloads/2.12/mobilerobot
 pyenv activate localization
 sudo chmod 777 /dev/ttyACM0 
 sudo chmod 777 /dev/ttyACM1
+export PYTHONPATH=.
 python ./vision/friday.py
 (password is admin, btw)
+
+NOTE: must run from mobilerobot directory (and that's the directory that PYTHONPATH should point to as well)
 
 # Test
 

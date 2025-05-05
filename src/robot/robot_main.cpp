@@ -39,6 +39,7 @@ void setup() {
     delay(1000);
     initSender();*/
     //manipulatorSetup();
+    //std::unique_lock<std::mutex> lock(m);
 }
 
 int test = 0;

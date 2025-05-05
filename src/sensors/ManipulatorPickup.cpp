@@ -89,7 +89,7 @@ void raise_stepper(){
     }
 }
 
-void manipulatorSetup() {
+void setup() {
   //wireless
   // Serial.begin();
 
@@ -123,7 +123,7 @@ void manipulatorSetup() {
   delay(10);
 }
 
-void manipulatorLoop() {
+void loop() {
   // printData();
   // if(data.swch1){
   //   activate = true;
@@ -271,6 +271,6 @@ void manipulatorLoop() {
             sendToJetson();  //let jetson know we're ending task
         
           }
+      }
     }
-
 }

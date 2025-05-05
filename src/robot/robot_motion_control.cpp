@@ -70,6 +70,7 @@ float pickupstrafe = 0;
 std::atomic<float> x{0.0f}; 
 
 std::mutex              m;
+std::unique_lock<std::mutex> lock(m);
 float Xapril = apriltagx.load(); // assume distance from april tag (x)
 float Yapril = apriltagy.load(); // assume distance from april tag (y)
 float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
@@ -189,7 +190,6 @@ void manualDrive(){
               pickupButton = false;
               dropoffButton = true;
 
-              std::unique_lock<std::mutex> lock(m);
               cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
               taskComp.store(false);
         
@@ -200,7 +200,6 @@ void manualDrive(){
               pickupButton = true;
               dropoffButton = false;
 
-              std::unique_lock<std::mutex> lock(m);
               cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
               taskComp.store(false);
             }
@@ -370,7 +369,6 @@ bool pickup(String COLOR) {
             Trobot = 0;
             pickupstate++;
 
-            std::unique_lock<std::mutex> lock(m);
             cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
             taskComp.store(false);
             break;
@@ -461,7 +459,6 @@ bool pickup(String COLOR) {
             Trobot = 0;
             pickupstate++;
 
-            std::unique_lock<std::mutex> lock(m);
             cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
             taskComp.store(false);
             break;
@@ -644,7 +641,6 @@ bool dropoff(String COLOR){
             Trobot = 0;
             pickupstate++;
 
-            std::unique_lock<std::mutex> lock(m);
             cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
             taskComp.store(false);
             break;
@@ -682,7 +678,6 @@ bool dropoff(String COLOR){
                 dropoffstate++;
             }
 
-            std::unique_lock<std::mutex> lock(m);
             cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
             taskComp.store(false);
             break;
@@ -892,8 +887,7 @@ bool clearDropoff() {
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
-            
-            std::unique_lock<std::mutex> lock(m);
+
             cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
             taskComp.store(false);
 
