@@ -7,6 +7,7 @@
 #include "robot_drive.h"
 #include <cmath>
 #include <cstdlib>
+#include "esp_sender.h"
 
 // #define UTURN
 // #define CIRCLE
@@ -183,7 +184,7 @@ void manualDrive(){
             updateSpeeds(0,0,0,0);
             if(pickupButton){
               delay(1000);
-              gripperClose();
+              sendToJetson(2);
               pickupButton = false;
               dropoffButton = true;
         
@@ -303,6 +304,9 @@ void distTester(){
 
 // end distance tester
 
+//sendToJetson(1) //initiate pickup
+//sendToJetson(2) //initiate dropoff
+
 
 // Layla function -- pickup function based on color of box (for ALL boxes)
 bool pickup(String COLOR) {
@@ -350,7 +354,7 @@ bool pickup(String COLOR) {
 
         case 1: // GRIPPER - fake!
             Serial.print("STEP 4");
-            gripperClose();
+            sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
@@ -615,7 +619,7 @@ bool dropoff(String COLOR){
         // Release box-- 0.3.3 
         case 4: // GRIPPER !
             Serial.print("STEP 5");
-            gripperOpen();
+            sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
@@ -638,7 +642,7 @@ bool dropoff(String COLOR){
             break;
         
         case 6:
-            gripperClose();
+            sendToJetson(2);
             // Until robot has achieved a translation of dgripper m
             if (Xrobot <= 0) {
                 // Move in a straight line forward
@@ -833,7 +837,7 @@ bool clearDropoff() {
         
         // strafe right to get to box
         case 3:
-            // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
+            // Until robot sees COLOR tag// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
             if (!((colorid == desiredColor) && abs(Xapril) < error)){
                 // Strafe left
                 Serial.print("CLEARDROP 4");
@@ -854,17 +858,25 @@ bool clearDropoff() {
             break;
         
         //[SKIPPED]--- open gripper and release box
+        case 4: // GRIPPER !
+            Serial.print("STEP 5");
+            sendToJetson(1);
+            Xrobot = 0;
+            Yrobot = 0;
+            Trobot = 0;
+            pickupstate++;
+            break;
 
-        case 4:
+        case 5:
             // Until robot has achieved a translation of - dclear2 m
             if (Xrobot >= -dclear2) {
                 // Move in a straight line backward
-                Serial.print("CLEARDROP 5");
+                Serial.print("CLEARDROP 6");
                 robotVelocity = -4;
                 robotYVelocity = 0;
             } else {
                 // Move on to next state
-                Serial.print("END CLEARDOP 5");
+                Serial.print("END CLEARDOP 6");
                 Xrobot = 0;
                 Yrobot = 0;
                 Trobot = 0;
@@ -875,7 +887,7 @@ bool clearDropoff() {
                 return true;
             }
             break;
-        case 5:
+        case 6:
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
