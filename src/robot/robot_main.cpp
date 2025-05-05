@@ -50,6 +50,8 @@ void loop() {
         resetState();
     }
     test = test + 1;
+    
+    //TODO: bring back delay for serial connection
 
     //else
     EVERY_N_MILLIS(20) {
@@ -74,13 +76,17 @@ void loop() {
     EVERY_N_MILLIS(500) { //TODO: finetune this delay
         AprilTagData d = loopComm();
         if (d.id != -1) {
-            apriltagid.store(d.id);
-            apriltagx.store(d.x);
-            apriltagy.store(d.y);
-            colorid.store(d.col);
+            if (d.x != -1) {
+                apriltagid.store(d.id);
+                apriltagx.store(d.x);
+                apriltagy.store(d.y);
+                colorid.store(d.col);
+            } else {
+                Serial.printf("done with gripper task");
+            }
         }
         //d::cout << apriltagid<< ", " << apriltagx << ", " apriltagy;
-        //Serial.printf("%d, %d, %.2f, %.2f", apriltagid.load(), colorid.load(), apriltagx.load(), apriltagy.load()); //debug
+        Serial.printf("%d, %d, %.2f, %.2f", apriltagid.load(), colorid.load(), apriltagx.load(), apriltagy.load()); //debug
     }
   
 }
