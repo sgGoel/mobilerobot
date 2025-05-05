@@ -13,6 +13,8 @@ void setupComm() {
 // (not inherently incompatible with writing to Serial port, but the writing capability is just not needed in this version)
 SensorData loopComm() {
 
+    sendToJetson();
+
     static std::string buf;                    // keep it between calls
 
     while (Serial.available()) {               
@@ -35,6 +37,10 @@ SensorData loopComm() {
     return {-1};
 
     //delay(0.5); //some delay needed so as not to overwhelm microcontroller
+}
+
+void sendToJetson(){
+    Serial.println("&");
 }
 
 
