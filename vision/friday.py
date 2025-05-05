@@ -119,8 +119,8 @@ def color_detection(frame):
     # Minimum pixel dimensions for the strip
     # minimum should be more aggressive or def on rectangle should be more aggressive because we don;t want red cagei n background to trigger
     # maximum should also be more aggressive (OR ratio should be more aggressive)
-    MIN_WIDTH  = 30
-    MIN_HEIGHT = 150
+    MIN_WIDTH  = 20#30
+    MIN_HEIGHT = 100#150
     MAX_WIDTH = 375
     MAX_HEIGHT = 375
     MIN_RATIO = 0.1

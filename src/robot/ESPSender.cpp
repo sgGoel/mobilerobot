@@ -4,9 +4,9 @@
 void setupComm() {
     Serial.begin();
 
-    //if (Serial.available() > 0){
-     //   int incomingByte = Serial.read();
-    //}
+    if (Serial.available() > 0){ //TODO: test this setup mechanism
+       int incomingByte = Serial.read();
+    }
 }
 
 // read from Serial port version of loop() function
