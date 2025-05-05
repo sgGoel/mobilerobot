@@ -11,14 +11,14 @@ if __name__ == '__main__':
     serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1)
     data = [0, 0, 0, 0]
 
-    while True:
+    """while True:
         try:
             serial_port.write(bytes("testing", "utf-8"))
             print("success")
         except Exception as e:
             print(e)
             pass
-        time.sleep(1)
+        time.sleep(1)"""
 
     while True:
         try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.

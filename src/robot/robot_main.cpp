@@ -36,7 +36,7 @@ void loop() {
     test = test + 1;
 
 
-    EVERY_N_MILLIS(20) {
+    /*EVERY_N_MILLIS(20) {
         followTrajectory();
     }
 
@@ -52,7 +52,7 @@ void loop() {
 
         //Serial.printf("x: %.2f, y: %.2f, theta: %.2f\n",
         //            robotMessage.x, robotMessage.y, robotMessage.theta);
-    }
+    }*/
 
     EVERY_N_MILLIS(500) { //TODO: finetune this delay
         AprilTagData d = loopComm();
@@ -63,7 +63,7 @@ void loop() {
             colorid.store(d.col);
         }
         //d::cout << apriltagid<< ", " << apriltagx << ", " apriltagy;
-        //Serial.printf("%d, %d, %.2f, %.2f", apriltagid.load(), colorid.load(), apriltagx.load(), apriltagy.load()); //debug
+        Serial.printf("%d, %d, %.2f, %.2f", apriltagid.load(), colorid.load(), apriltagx.load(), apriltagy.load()); //debug
     }
   
 }
