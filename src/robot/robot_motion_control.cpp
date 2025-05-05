@@ -234,10 +234,12 @@ void resetState() {
 // gripper functions
 
 void gripperOpen(){
+    activate = true;
     delay(20);
 }
 
 void gripperClose(){
+    activate = true;
     delay(20);
 }
 
@@ -345,8 +347,18 @@ bool pickup(String COLOR) {
                 pickupstate++;
             }
             break;
+
+        case 1: // GRIPPER - fake!
+            Serial.print("STEP 4");
+            gripperClose();
+            Xrobot = 0;
+            Yrobot = 0;
+            Trobot = 0;
+            pickupstate++;
+            break;
+
         // Search for COLOR tag -- 0.4.2
-        case 1:
+        case 2:
             Serial.print("Desired color ID");
             Serial.print(desiredColor);
             Serial.print("ID");
@@ -405,7 +417,7 @@ bool pickup(String COLOR) {
             }
             break;
         // Position for dropoff -- 0.4.3/0.4.4
-        case 2:
+        case 3:
             // Until robot has achieved a translation of dgripper
             if (Xrobot <= dgripper) {
                 // Move in a straight line backward
@@ -422,7 +434,7 @@ bool pickup(String COLOR) {
             }
             break;
 
-        case 3: // GRIPPER !
+        case 4: // GRIPPER !
             Serial.print("STEP 4");
             gripperClose();
             Xrobot = 0;
@@ -431,7 +443,7 @@ bool pickup(String COLOR) {
             pickupstate++;
             break;
 
-        case 4:
+        case 5:
             if (COLOR == "CLEAR"){
                 if (Yrobot >= -pickupstrafe) {
                     // Strafe right by default, left if going for clear box

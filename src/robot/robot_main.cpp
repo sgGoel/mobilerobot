@@ -39,6 +39,7 @@ void setup() {
     Serial.println("Starting!");
     delay(1000);
     initSender();*/
+    //manipulatorSetup();
 }
 
 int test = 0;
@@ -55,6 +56,7 @@ void loop() {
     //else
     EVERY_N_MILLIS(20) {
         followTrajectory();
+        //manipulatorLoop();
     }
 
     // Update PID at 200Hz
