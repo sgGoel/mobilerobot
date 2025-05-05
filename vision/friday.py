@@ -17,8 +17,6 @@ serial_port1 = serial.Serial(port=port_name1, baudrate=115200, timeout=1, write_
 
 port_name2 = '/dev/ttyACM1' #sudo chmod 777 portname
 serial_port2 = serial.Serial(port=port_name2, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
-#write_q2 = queue.Queue()
-#read_q2 = queue.Queue()
 
 # NOTE: assumes camera_calibration has alrady been done
 
@@ -171,31 +169,6 @@ def color_detection(frame):
 
     return detections
 
-def forwarding():
-    pass
-
-"""
-def io_thread(ser, write_q, read_q):
-    while True:
-        try:
-            data = write_q.get_nowait()
-        except queue.Empty:
-            data = None
-        
-        if data is None:
-            line = ser.readline()
-            if line:
-                read_q.put(line)
-        else:
-            # TODO: CASES FOR QUEUES
-            print(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}")
-            ser.write(bytes(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}"), "utf-8")
-            #ser.write(bytes(data), "utf-8")
-            #ser.write(data)
-            #ser.flush()
-        time.sleep(10)
-"""
-
 def io_thread(ser, write_q, read_q):
     while True:
         data = write_q.get()
@@ -203,64 +176,40 @@ def io_thread(ser, write_q, read_q):
             # TODO: CASES FOR QUEUES
             print(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}")
             ser.write(bytes(f"@{data[0]}@{data[1]}@{data[2]}@{data[3]}@{data[4]}"), "utf-8")
-            #ser.write(bytes(data), "utf-8")
-            #ser.write(data)
             #ser.flush()
         time.sleep(0.1)
 
 def read_micro(deli, in_port, out_port):
     data = [0, 0, 0, 0]
     while True:
-        #try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
+        try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
              # We recommend moving code outside of the try block for testing.
-        if in_port.in_waiting > 0:
-            esp32_output = str(in_port.readline()) # The ESP32 output should be a series of values seperated by commas and terminated by "\n", e.g. "1,2,3,4,\n".
-                                                        # This termination occurs automatically if you use Serial.println();
+            if in_port.in_waiting > 0:
+                esp32_output = str(in_port.readline()) # The ESP32 output should be a series of values seperated by commas and terminated by "\n", e.g. "1,2,3,4,\n".
+                                                            # This termination occurs automatically if you use Serial.println();
+                    
+                vals = esp32_output.split(",") # Split into a list of strings
+                print(vals) # Useful for debugging
                 
-            vals = esp32_output.split(",") # Split into a list of strings
-            print(vals) # Useful for debugging
-            
-            #for i in range(len(data)):
-                #data[i] = float(vals[i])
-            c1 = esp32_output[2:].strip()[0]
-            c2 = esp32_output[2:].strip()[1]
-            #print(f"debugging {c1} {c2}")
+                c1 = esp32_output[2:].strip()[0]
+                c2 = esp32_output[2:].strip()[1]
+                #print(f"debugging {c1} {c2}")
 
-            if (c1 == deli):
-                #print("writing to out port!")
-                if (deli == "#"):
-                    out_port.write(bytes(f"@{c2}", "utf-8")) #TODO: test task variable being updates on ESPSender2.cpp
-                else:
-                    out_port.write(bytes(f"&{c2}", "utf-8"))
-            
-            
-            #if (str(vals[i])[0] == "#"):
-            #    print("RECEIVED!!!!!")
-                #out_port.write(bytes(f"{str(vals[i])[1]}", "utf-8"))
-            
-            in_port.reset_input_buffer()
-        else:
-            time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
-        #except:
-        #    pass
-
-       
-"""def read_micro(read_q, write_q):
-    while True:
-        incoming = str(serial_port1.readline())#read_q.get()
-        print("received: ")
-        print(incoming)
-
-        #write_q.put(incoming)
-        time.sleep(0.05)"""
+                if (c1 == deli):
+                    #print("writing to out port!")
+                    if (deli == "#"):
+                        out_port.write(bytes(f"@{c2}", "utf-8")) #TODO: test task variable being updates on ESPSender2.cpp
+                    else:
+                        out_port.write(bytes(f"&{c2}", "utf-8"))
+                
+                in_port.reset_input_buffer()
+            else:
+                time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
+        except:
+            pass
 
 def main():
     cap = cv2.VideoCapture(0)#, cv2.CAP_DSHOW)
-    """cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOCUS, 0)
-    cap.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc('M', 'J', 'P', 'G') )"""
     
     if not cap.isOpened():
         print("Error: Could not open webcam.")
@@ -275,16 +224,12 @@ def main():
 
         at = april_tag_detection(frame) #str
         col = color_detection(frame) #lst #we'll assume for now that only one color bar is detected
-        cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
+        #cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
 
-        #incoming = str(serial_port1.readline())
-        #print(incoming)
         
         if (len(at) > 0 and len(col) > 0): #TODO: send color = -1 if no color, and do clear bucket logic
             d = {"red":0, "blue":1, "yellow":2}
             c = d[col[0][0]] if col[0][0] else -1
-            #s = at + "@" + str(c)
-            #print(s) #DEBUG
             try:
                 print(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}")
                 #write_q1.put((at[0], at[1], at[2], at[3], c))
@@ -299,59 +244,11 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-"""
-if __name__ == '__main__':
-    
-    # Connect to the ESP32. You can use PlatformIO to find its COM port. Remember that the COM port is different in BOOT mode than when code is running!
-    port_name = '/dev/ttyACM0'
-    serial_port = serial.Serial(port=port_name, baudrate=115200, timeout=1, write_timeout=1)
-    data = [0, 0, 0, 0]
-
-    while True:
-        #try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
-             # We recommend moving code outside of the try block for testing.
-        if serial_port.in_waiting > 0:
-            esp32_output = str(serial_port.readline()) # The ESP32 output should be a series of values seperated by commas and terminated by "\n", e.g. "1,2,3,4,\n".
-                                                        # This termination occurs automatically if you use Serial.println();
-                
-            vals = esp32_output.split(",") # Split into a list of strings
-            print(vals) # Useful for debugging
-            
-            for i in range(len(data)):
-                data[i] = float(vals[i])
-            
-            serial_port.reset_input_buffer()
-        else:
-            time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
-        #except:
-         #   pass
-
-
-        # How to write a String to the ESP32
-##        try:
-##            cmd_str = "Test"
-##            serial_port.write(cmd_str.encode())
-##        except:
-##            print('Write failed')
-"""
-
 if __name__ == "__main__":
-    #forw = threading.Thread(target=forwarding, daemon = True)
-    #forw.start()
-
-    #to_main = threading.Thread(target=io_thread, daemon = True, args = (serial_port1, write_q1, read_q1))
-    #to_main.start()
-
-    #to_side = threading.Thread(target=io_thread, daemon = True, args = (serial_port1, write_q2, read_q2))
-    #to_side.start()
-
     read_main = threading.Thread(target=read_micro, daemon = True, args=('#', serial_port1, serial_port2))
     read_main.start()
 
     read_side = threading.Thread(target=read_micro, daemon = True, args=('&', serial_port2, serial_port1))
     read_side.start()
-
-    #read_sensors = threading.Thread(target=read_micro, daemon = True, args = (read_q2))
-    #read_sensors.start()
 
     main()

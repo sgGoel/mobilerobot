@@ -15,7 +15,7 @@ void setupComm() {
 AprilTagData loopComm() {
 
     //TESTING
-    sendToJetson(1);
+    //sendToJetson(1);
 
     static std::string buf;                    // keep it between calls
 
@@ -53,14 +53,10 @@ AprilTagData loopComm() {
 
 void sendToJetson(int task){
     if (task == 1){
-        Serial.println("#1");
+        Serial.println("#1"); 
     } else {
         Serial.println("#2");
     }
-        
-    //std::string deli = "#";
-    //Serial.println((deli + std::to_string(task)).c_str());
-    //Serial.write(reinterpret_cast<const uint8_t*>(msg.data()), msg.size());
 }
 
 

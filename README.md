@@ -6,13 +6,28 @@
 * Push local branch to git (and commit and push updates frequently)
 * Whenever you're ready (ex: you've finished a feature), make a pull request (this will merge your changes into the main branch)
 * (Software team lead will be responsible for timely review of pull requests)
+
+# To Run
+
+Load code from "sensors" environment onto sensors microcontroller
+Load code from "robot" enviroment onto main microcontroller
+Start both sets of code (by hitting reset on both microcontrollers)
+
+Connect your laptop to the jetson via the usb c port. Run:
+ssh lilo@192.168.55.1
+Your terminal is now connected to the jetson terminal. You should be able to:
+cd Downloads/2.12/mobilrobot
+pyenv activate localization
+sudo chmod 777 /dev/ttyACM0 
+sudo chmod 777 /dev/ttyACM1
+python ./vision/friday.py
+(password is admin, btw)
+
 # Test
 
 # Project structure
 
-Currently just starter code from lab.
-
-# SERVICE TODOS
+# Swati Random Notes
 
 Start pyenv automatically
 Give port permission: sudo chmod 777 /dev/ttyACM0
