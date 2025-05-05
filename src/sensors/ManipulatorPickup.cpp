@@ -83,7 +83,8 @@ void raise_stepper(){
 }
 
 void setup() {
-  Serial.begin();
+  //Serial.begin();
+  setupComm();
 
   // Force Sensor
   // set the ADC attenuation to 11 dB (up to ~3.3V input)

@@ -49,7 +49,7 @@ AprilTagData loopComm() {
         }  else if (sscanf(buf.c_str(), "&%d", &id) == 1) {
             Serial.print("task_status=");   Serial.println(id);
             taskComp.store(true);
-            cv.notify_one(); 
+            //cv.notify_one(); 
         }
 
         buf.clear();

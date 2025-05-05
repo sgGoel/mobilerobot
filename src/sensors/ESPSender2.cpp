@@ -43,7 +43,7 @@ SensorData loopComm() {
 }
 
 void sendToJetson(){
-    Serial.println("&1"); //"I'm done!"
+    //Serial.println("&1"); //"I'm done!"
 }
 
 

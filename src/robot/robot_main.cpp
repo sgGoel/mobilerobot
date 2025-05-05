@@ -32,6 +32,8 @@ void setup() {
     ums3.begin();
     initReceiver();
 
+    manualFlag.store(false);
+
     delay(10000);
 
     //gripper

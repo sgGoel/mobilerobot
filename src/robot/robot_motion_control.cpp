@@ -82,6 +82,8 @@ std::unique_lock<std::mutex> lock(m);
 float error = 0.25; // about 1cm tolerance on each side
 float desiredColor = 0; // color we want
 
+std::atomic<bool> manualFlag;
+
 // Sets the desired wheel velocities based on desired robot velocity in m/s
 // and k curvature in 1/m representing 1/(radius of curvature)
 void setWheelVelocities(float robotVelocity, float k){
@@ -119,7 +121,8 @@ bool pickupButton = false;
 bool dropoffButton = false;
 
 void manualDrive(){
-    delay(1000);
+    manualFlag.store(true);
+    delay(20);
     while(!data.swch2){
         printData();
         delay(20);
@@ -194,8 +197,10 @@ void manualDrive(){
               pickupButton = false;
               dropoffButton = true;
 
-              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              taskComp.store(false);
+              delay(5000);
+
+              //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              //taskComp.store(false);
         
             } else if(dropoffButton){
               delay(1000);
@@ -204,12 +209,15 @@ void manualDrive(){
               pickupButton = true;
               dropoffButton = false;
 
-              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              taskComp.store(false);
+              delay(5000);
+
+              //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              //taskComp.store(false);
             }
         }
 
     }
+    manualFlag.store(false);
     updateSpeeds(0,0,0,0);
     printData();
     Serial.println("WARNING: FINGER OFF THE TRIGGER!");
@@ -373,8 +381,10 @@ bool pickup(String COLOR) {
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            delay(5000);
+
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Search for COLOR tag -- 0.4.2
@@ -463,8 +473,10 @@ bool pickup(String COLOR) {
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            delay(5000);
+
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         case 5:
@@ -650,8 +662,10 @@ bool dropoff(String COLOR){
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            delay(5000);
+
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Push box into parking spot -- 0.3.4
@@ -685,10 +699,13 @@ bool dropoff(String COLOR){
                 thetaSpeed = 0;
                 Yrobot = 0;
                 dropoffstate++;
+                
             }
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            delay(5000);
+
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Return to setpoint -- 0.3.5 
@@ -897,8 +914,10 @@ bool clearDropoff() {
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            delay(5000);
+
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
 
             break;
 

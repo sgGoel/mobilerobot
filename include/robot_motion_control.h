@@ -15,6 +15,8 @@ extern std::atomic<float> apriltagy;
 extern std::atomic<int> apriltagid; // apriltag id
 extern std::atomic<int> colorid; // color reading from Apriltag -- 1 = yellow, 2 = blue, 3 = red, 4 = clear
 
+extern std::atomic<bool> manualFlag;
+
 void resetState();
 void followTrajectory();
 void updateOdometry();
