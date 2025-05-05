@@ -5,7 +5,8 @@
 void setupComm() {
     //initUSB("Sensor‑ESP");
     Serial.begin(115200);
-    Serial.println("$SENSOR")
+    Serial.println("$SENSOR");
+
 
     //if (Serial.available() > 0){ //TODO: test this setup mechanism
     //   int incomingByte = Serial.read();

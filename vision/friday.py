@@ -10,13 +10,13 @@ import glob
 
 
 
-port_name1 = "/dev/esp_cam" #'/dev/ttyACM0' #sudo chmod 777 portname
+port_name1 =  '/dev/ttyACM0' #sudo chmod 777 portname #"/dev/esp_cam"
 serial_port1 = serial.Serial(port=port_name1, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
 #write_q1 = queue.Queue()
 #read_q1 = queue.Queue()
 
 
-port_name2 = "/dev/esp_sensors"#'/dev/ttyACM1' #sudo chmod 777 portname
+port_name2 = '/dev/ttyACM1' #sudo chmod 777 portname #"/dev/esp_sensors"
 serial_port2 = serial.Serial(port=port_name2, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
 
 # NOTE: assumes camera_calibration has alrady been done
@@ -244,18 +244,6 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    read_main = threading.Thread(target=read_micro, daemon = True, args=('#', serial_port1, serial_port2))
-    read_main.start()
-
-    read_side = threading.Thread(target=read_micro, daemon = True, args=('&', serial_port2, serial_port1))
-    read_side.start()
-
-    main()
-
-
-    import serial, glob, time
-
 def identify(port):
     ser = serial.Serial(port, 115200, timeout=0.5)
     time.sleep(0.6)                  # give ESP time to reset & print
@@ -263,12 +251,22 @@ def identify(port):
     ser.close()
     return line.strip()
 
-cams, sensors = None, None
-for dev in glob.glob("/dev/ttyUSB*"):
-    tag = identify(dev)
-    if tag == "@CAM":
-        cams = dev
-    elif tag == "@SENSOR":
-        sensors = dev
+if __name__ == "__main__":
 
-print("cam on", cams, "sensors on", sensors)
+    cams, sensors = None, None
+    """for dev in glob.glob("/dev/ttyACM*"):
+        tag = identify(dev)
+        if tag == "@CAM":
+            cams = dev
+        elif tag == "@SENSOR":
+            sensors = dev
+
+    print("cam on", cams, "sensors on", sensors)"""
+
+    read_main = threading.Thread(target=read_micro, daemon = True, args=('#', serial_port1, serial_port2))
+    read_main.start()
+
+    read_side = threading.Thread(target=read_micro, daemon = True, args=('&', serial_port2, serial_port1))
+    read_side.start()
+
+    main()

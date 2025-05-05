@@ -73,7 +73,7 @@ void loop() {
         //            robotMessage.x, robotMessage.y, robotMessage.theta);
     }
 
-    EVERY_N_MILLIS(500) { //TODO: finetune this delay
+    EVERY_N_MILLIS(50) { //TODO: finetune this delay
         AprilTagData d = loopComm();
         if (d.id != -1) {
             if (d.x != -1) {
