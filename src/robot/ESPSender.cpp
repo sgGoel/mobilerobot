@@ -2,6 +2,9 @@
 #include <cstdio> 
 #include <string>
 
+std::atomic<bool> taskComp{false};
+std::condition_variable cv;
+
 void setupComm() {
     Serial.begin(115200);
 
@@ -40,6 +43,8 @@ AprilTagData loopComm() {
             Serial.print("col=");  Serial.println(col);
         }  else if (sscanf(buf.c_str(), "&%d", &id) == 1) {
             Serial.print("task_status=");   Serial.println(id);
+            taskComp.store(true);
+            cv.notify_one(); 
         }
 
         buf.clear();

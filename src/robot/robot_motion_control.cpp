@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdlib>
 #include "esp_sender.h"
+#include <mutex>
 
 // #define UTURN
 // #define CIRCLE
@@ -68,7 +69,7 @@ float pickupstrafe = 0;
 
 std::atomic<float> x{0.0f}; 
 
-
+std::mutex              m;
 float Xapril = apriltagx.load(); // assume distance from april tag (x)
 float Yapril = apriltagy.load(); // assume distance from april tag (y)
 float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
@@ -187,12 +188,21 @@ void manualDrive(){
               sendToJetson(2);
               pickupButton = false;
               dropoffButton = true;
+
+              std::unique_lock<std::mutex> lock(m);
+              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              taskComp.store(false);
         
             } else if(dropoffButton){
               delay(1000);
-              gripperOpen();
+              //gripperOpen();
+              sendToJetson(1);
               pickupButton = true;
               dropoffButton = false;
+
+              std::unique_lock<std::mutex> lock(m);
+              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              taskComp.store(false);
             }
         }
 
@@ -359,6 +369,10 @@ bool pickup(String COLOR) {
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
+
+            std::unique_lock<std::mutex> lock(m);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Search for COLOR tag -- 0.4.2
@@ -440,11 +454,16 @@ bool pickup(String COLOR) {
 
         case 4: // GRIPPER !
             Serial.print("STEP 4");
-            gripperClose();
+            //gripperClose();
+            sendToJetson(2);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
+
+            std::unique_lock<std::mutex> lock(m);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         case 5:
@@ -624,6 +643,10 @@ bool dropoff(String COLOR){
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
+
+            std::unique_lock<std::mutex> lock(m);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Push box into parking spot -- 0.3.4
@@ -658,6 +681,10 @@ bool dropoff(String COLOR){
                 Yrobot = 0;
                 dropoffstate++;
             }
+
+            std::unique_lock<std::mutex> lock(m);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
             break;
 
         // Return to setpoint -- 0.3.5 
@@ -865,6 +892,11 @@ bool clearDropoff() {
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
+            
+            std::unique_lock<std::mutex> lock(m);
+            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            taskComp.store(false);
+
             break;
 
         case 5:
