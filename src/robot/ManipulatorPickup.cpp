@@ -39,8 +39,8 @@ int Step_Up = 0;
 // UMS3 ums3;
 
 bool navigating = false;
-bool pickup = true;
-bool dropoff = false;
+bool pickupManip = true;
+bool dropoffManip = false;
 bool activate = false;
 
 // PySerial Definitions
@@ -82,7 +82,7 @@ void raise_stepper(){
     }
 }
 
-void setup() {
+void manipulatorSetup() {
   //wireless
   // Serial.begin();
 
@@ -116,7 +116,7 @@ void setup() {
   delay(10);
 }
 
-void loop() {
+void manipulatorLoop() {
   // printData();
   // if(data.swch1){
   //   activate = true;
@@ -210,7 +210,7 @@ void loop() {
     // glory to his kingdom
     if(activate){
 
-        if(pickup) {
+        if(pickupManip) {
         // make sure the stepper is as low as possible and the servo is open as much as possible 
         // hope();
         // start the servo closing until the force sensor reads a nonzero value
@@ -219,15 +219,15 @@ void loop() {
         // force_feedback();
         // once this is done, lift 
         raise_stepper();
-        pickup = false;
-        dropoff = true; 
-        } else if(dropoff){
+        pickupManip = false;
+        dropoffManip = true; 
+        } else if(dropoffManip){
         // move the stepper motor down as low as possible
         lower_stepper();
         // open the servo as far as possible
         open_gripper();
-        dropoff = false;
-        pickup = true;
+        dropoffManip = false;
+        pickupManip = true;
 
         delay(2000);
 

@@ -63,6 +63,12 @@ extern double joystickAlpha;
 
 extern int32_t rotaryStart;
 
+// Gripper variabls
+
+extern bool activate;
+extern bool pickupManip;
+extern bool dropoffManip;
+
 void initPeripherals();
 
 void initRotary();
@@ -97,5 +103,8 @@ void manualDrive();
 void gripperOpen();
 void gripperClose();
 
+
+void manipulatorSetup();
+void manipulatorLoop();
 
 #endif //REMOTEH
