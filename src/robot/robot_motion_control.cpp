@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include "util.h"
-#include "robot_drive.h"
 #include "EncoderVelocity.h"
-#include "wireless.h"
+//#include "wireless.h"
+#include "remote.h"
 #include "robot_motion_control.h"
+#include "robot_drive.h"
 #include <cmath>
 #include <cstdlib>
 
@@ -16,7 +17,7 @@
 // #define PICKUP // Test run for positioning to pick up a box
 // #define DROPOFF // Test run for positioning to drop off a box
 
-// #define REV // Test run for backward motion
+ // #define TEST // Test run
 // #define TLEFT // Test run for turning left
 // #define TRIGHT // Test run for turning right
 // #define SLEFT // Test run for strafing left
@@ -24,8 +25,8 @@
 
 // end new functions
 
-extern RobotMessage robotMessage; // old robotMessage
-extern ControllerMessage controllerMessage;
+RobotMessage robotMessage; // old robotMessage
+//extern ControllerMessage controllerMessage;
 // extern RobotMess robotMess; // Layla Added
 
 int state = 0;
@@ -50,7 +51,7 @@ float dclear1 = 1;
 float dclear2 = 1;
 float ddirection = -4;
 float dsetpoint = 10;
-float dtest = 10;
+float dtest = 2;
 int dropoffstate = 0;
 int pickupstate = 0;
 int cleardropstate = 0;
@@ -62,6 +63,7 @@ bool shouldOpen = false;
 bool shouldClose = false;
 float dropoffstrafe = 0;
 float pickupstrafe = 0;
+
 
 std::atomic<float> x{0.0f}; 
 
@@ -96,6 +98,78 @@ void AWDsetWheelVelocities(float robotVelocity, float robotYVelocity, float thet
     AWDupdateSetpoints(m0, m1, m2, m3);
 }
 
+/// joystick attempt
+
+// motor PWMs
+double pwm_0; // backwards
+double pwm_1;
+double pwm_2;
+double pwm_3; //backwards
+
+void manualDrive(){
+    delay(1000);
+    bool pickupButton = false;
+    bool dropoffButton = false;
+    while(!data.swch2){
+        printData();
+        delay(20);
+        if(data.leftY > 0.2 or data.leftY < -0.2){
+            Serial.println("Forward/Backward");
+            pwm_0 += data.leftY/3;
+            pwm_1 += data.leftY/3;
+            pwm_2 += data.leftY/3;
+            pwm_3 += data.leftY/3;
+          }
+          // strafe, left X joystick
+          if(data.leftX > 0.2 or data.leftX < -0.2){
+            Serial.println("Strafing");
+            pwm_0 += -data.leftX/3;
+            pwm_1 += data.leftX/3;
+            pwm_2 += -data.leftX/3;
+            pwm_3 += data.leftX/3;
+      
+          }
+          // turn, right X joystick
+          if(data.rightX > 0.2 or data.rightX < -0.2){
+            Serial.println("Turning");
+            pwm_0 += -data.rightX/3;
+            pwm_1 += data.rightX/3;
+            pwm_2 += data.rightX/3;
+            pwm_3 += -data.rightX/3;
+          }
+          Serial.println(pwm_0);
+          Serial.println(pwm_1);
+          Serial.println(pwm_2);
+          Serial.println(pwm_3);
+          double m0 = -pwm_0;
+          double m1 = -pwm_1;
+          double m2 = pwm_2;
+          double m3 = pwm_3;
+
+          AWDupdateSetpoints(m0, m1, m2, m3);
+
+        if(data.swch1){
+            if(pickupButton){
+              delay(1000);
+              gripperOpen();
+              pickupButton = false;
+              dropoffButton = true;
+        
+            } else if(dropoffButton){
+              delay(1000);
+              gripperClose();
+              pickupButton = true;
+              dropoffButton = false;
+            }
+        }
+
+    }
+}
+
+/// end joystick attempt
+
+
+
 // Layla -- track position and time
 unsigned long prevTime = 0;
 float Xrobot = 0.0;
@@ -120,6 +194,19 @@ void resetState() {
 // end layla function
 
 
+// gripper functions
+
+void gripperOpen(){
+    //
+}
+
+void gripperClose(){
+    //
+}
+
+//end gripper functions
+
+
 // layla distance tester
 
 void distTester(){
@@ -129,9 +216,9 @@ void distTester(){
     float dclear1 = 1; // temp
     float dclear2 = 1; // temp
     float ddriection = -4;
-    float dsetpoint = 10;
-    float dtest = 10;
-    dtest = 10; // temp variable -- length of gripper
+    float dsetpoint = 2;
+    float dtest = 2;
+    dtest = 2; // temp variable -- length of gripper
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - prevTime) / 1000.0;  // in seconds
     prevTime = currentTime;
@@ -467,6 +554,7 @@ bool dropoff(String COLOR){
             break;
 
         // Release box-- 0.3.3 [SKIPPED]
+        gripperOpen();
 
         // Push box into parking spot -- 0.3.4
         case 4:
@@ -484,6 +572,7 @@ bool dropoff(String COLOR){
             break;
         
         // Close gripper [SKIPPED]
+        gripperClose();
 
         case 5:
             // Until robot has achieved a translation of dgripper m
@@ -795,6 +884,10 @@ bool reachYellow(){
 
 // Makes robot follow a trajectory
 void followTrajectory() {
+    #ifdef TEST
+    Serial.print("In tester");
+    distTester();
+    #endif
     #ifdef FWD
     Serial.print("april tag");
     Serial.print(Xapril);
@@ -808,6 +901,11 @@ void followTrajectory() {
             }
             else{
                 Serial.print("TOYELLOW");
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 reachYellow();
                 Serial.print("yellowstate");
                 Serial.print(yellowstate);
@@ -823,6 +921,11 @@ void followTrajectory() {
             else {
                 Serial.print("PICKUP 1");
                 colorid = 0;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 pickup("YELLOW");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -837,6 +940,11 @@ void followTrajectory() {
             } else {
                 Serial.print("DROPOFF 1");
                 colorid = 0;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 dropoff("YELLOW");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -852,6 +960,11 @@ void followTrajectory() {
             else {
                 Serial.print("PICKUP 2");
                 colorid = 1;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 pickup("BLUE");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -866,6 +979,11 @@ void followTrajectory() {
             } else {
                 Serial.print("DROPOFF 2");
                 colorid = 1;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 dropoff("BLUE");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -881,6 +999,11 @@ void followTrajectory() {
             else {
                 Serial.print("PICKUP 3");
                 colorid = 2;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 pickup("RED");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -895,6 +1018,11 @@ void followTrajectory() {
             } else {
                 Serial.print("DROPOFF 3");
                 colorid = 2;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 dropoff("RED");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -910,6 +1038,11 @@ void followTrajectory() {
             else {
                 Serial.print("PICKUP Clear");
                 colorid = 3;
+                if(data.swch2){
+                    Serial.print("Switching to manual");
+                    manualDrive();
+                    state++;
+                }
                 pickup("CLEAR");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -924,6 +1057,11 @@ void followTrajectory() {
         } else {
             Serial.print("DROPOFF Clear");
             colorid = 3;
+            if(data.swch2){
+                Serial.print("Switching to manual");
+                manualDrive();
+                state++;
+            }
             clearDropoff();
             Serial.print("cleardropstate");
             Serial.print(cleardropstate);

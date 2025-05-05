@@ -4,6 +4,8 @@
 #include "PID.h"
 #include "EncoderVelocity.h"
 #include "robot_drive.h"
+//#include "remote.h"
+//#include "robot_motion_control.h"
 
 #define DIR_PIN_FM1 34
 #define PWM_PIN_FM1 7
@@ -33,10 +35,12 @@ double setpoints[NUM_MOTORS] = {0, 0, 0, 0};
 double velocities[NUM_MOTORS] = {0, 0, 0, 0};
 double controlEfforts[NUM_MOTORS] = {0, 0, 0, 0};
 
+
 void setupDrive(){
     for (uint8_t i = 0; i < NUM_MOTORS; i++)
         motors[i].setup();
 }
+
 
 void updateSetpoints(double left, double right) {
     setpoints[0] = left;
