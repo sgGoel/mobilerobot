@@ -1,3 +1,5 @@
+#ifndef ESPSH
+#define ESPSH
 #include <Arduino.h>
 #include <string>
 
@@ -7,3 +9,5 @@ void setupComm();
 AprilTagData loopComm();
 
 void sendToJetson(int task);
+
+#endif //ESPSH
