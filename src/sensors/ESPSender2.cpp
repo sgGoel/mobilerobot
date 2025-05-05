@@ -2,11 +2,11 @@
 #include <cstdio> 
 
 void setupComm() {
-    Serial.begin();
+    Serial.begin(115200);
 
-    if (Serial.available() > 0){ //TODO: test this setup mechanism
-       int incomingByte = Serial.read();
-    }
+    //if (Serial.available() > 0){ //TODO: test this setup mechanism
+    //   int incomingByte = Serial.read();
+    //}
 }
 
 // read from Serial port version of loop() function
@@ -40,7 +40,7 @@ SensorData loopComm() {
 }
 
 void sendToJetson(){
-    Serial.println("&");
+    Serial.println("&1");
 }
 
 

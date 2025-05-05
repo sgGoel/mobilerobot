@@ -186,7 +186,7 @@ void loop() {
     // use pyserial here in the loop to see when it's time to go into man mode (the loop automatically takes us out of man mode)
 
     // glory to his kingdom
-    while(!navigating){
+    /*while(!navigating){
 
         if(pickup) {
         // make sure the stepper is as low as possible and the servo is open as much as possible 
@@ -209,7 +209,7 @@ void loop() {
         } else {
             navigating = true;
         }
-    }
+    }*/
 
     EVERY_N_MILLIS(500) { //TODO: finetune this delay
       SensorData d = loopComm();
