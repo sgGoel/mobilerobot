@@ -224,9 +224,14 @@ def read_micro(deli, in_port, out_port):
                 #data[i] = float(vals[i])
             c1 = esp32_output[2:].strip()[0]
             c2 = esp32_output[2:].strip()[1]
+            #print(f"debugging {c1} {c2}")
 
             if (c1 == deli):
-                out_port.write(bytes(f"{c2}", "utf-8"))
+                #print("writing to out port!")
+                if (deli == "#"):
+                    out_port.write(bytes(f"@{c2}", "utf-8")) #TODO: test task variable being updates on ESPSender2.cpp
+                else:
+                    out_port.write(bytes(f"&{c2}", "utf-8"))
             
             
             #if (str(vals[i])[0] == "#"):
@@ -343,8 +348,8 @@ if __name__ == "__main__":
     read_main = threading.Thread(target=read_micro, daemon = True, args=('#', serial_port1, serial_port2))
     read_main.start()
 
-    #read_side = threading.Thread(target=read_micro2, daemon = True)
-    #read_side.start()
+    read_side = threading.Thread(target=read_micro, daemon = True, args=('&', serial_port2, serial_port1))
+    read_side.start()
 
     #read_sensors = threading.Thread(target=read_micro, daemon = True, args = (read_q2))
     #read_sensors.start()
