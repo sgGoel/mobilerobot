@@ -1,10 +1,11 @@
 #include "esp_sender2.h"
 #include <cstdio> 
-#include "usb_id.h"
+//#include "usb_id.h"
 
 void setupComm() {
-    initUSB("Sensor‑ESP");
+    //initUSB("Sensor‑ESP");
     Serial.begin(115200);
+    Serial.println("$SENSOR")
 
     //if (Serial.available() > 0){ //TODO: test this setup mechanism
     //   int incomingByte = Serial.read();

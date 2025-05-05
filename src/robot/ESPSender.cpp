@@ -1,15 +1,16 @@
 #include "esp_sender.h"
 #include <cstdio> 
 #include <string>
-#include "usb_id.h"
+//#include "usb_id.h"
 
 std::atomic<bool> taskComp{false};
 std::condition_variable cv;
 
 void setupComm() {
-    initUSB("AprilTag‑ESP");
+    //initUSB("AprilTag‑ESP");
 
     Serial.begin(115200);
+    Serial.println("$CAM");
 
     //if (Serial.available() > 0){ //TODO: test this setup mechanism
     //   int incomingByte = Serial.read();

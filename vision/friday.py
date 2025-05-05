@@ -6,16 +6,17 @@ import time
 import serial
 import threading
 import queue
+import glob
 
 
 
-port_name1 = '/dev/ttyACM0' #sudo chmod 777 portname
+port_name1 = "/dev/esp_cam" #'/dev/ttyACM0' #sudo chmod 777 portname
 serial_port1 = serial.Serial(port=port_name1, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
 #write_q1 = queue.Queue()
 #read_q1 = queue.Queue()
 
 
-port_name2 = '/dev/ttyACM1' #sudo chmod 777 portname
+port_name2 = "/dev/esp_sensors"#'/dev/ttyACM1' #sudo chmod 777 portname
 serial_port2 = serial.Serial(port=port_name2, baudrate=115200, timeout=1, write_timeout=1) #comment out for local debugging
 
 # NOTE: assumes camera_calibration has alrady been done
