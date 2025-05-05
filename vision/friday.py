@@ -208,31 +208,38 @@ def io_thread(ser, write_q, read_q):
             #ser.flush()
         time.sleep(0.1)
 
-def read_micro():
+def read_micro(deli, in_port, out_port):
     data = [0, 0, 0, 0]
     while True:
-        try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
+        #try: # Be careful: any code inside this try block that fails will not display an error. Instead, the block will simply exit.
              # We recommend moving code outside of the try block for testing.
-            if serial_port1.in_waiting > 0:
-                esp32_output = str(serial_port1.readline()) # The ESP32 output should be a series of values seperated by commas and terminated by "\n", e.g. "1,2,3,4,\n".
-                                                           # This termination occurs automatically if you use Serial.println();
-                    
-                vals = esp32_output.split(",") # Split into a list of strings
-                print(vals) # Useful for debugging
+        if in_port.in_waiting > 0:
+            esp32_output = str(in_port.readline()) # The ESP32 output should be a series of values seperated by commas and terminated by "\n", e.g. "1,2,3,4,\n".
+                                                        # This termination occurs automatically if you use Serial.println();
                 
-                for i in range(len(data)):
-                    #data[i] = float(vals[i])
-                    if (str(vals[i])[0] == "#"):
-                        print("RECEIVED!!!!!")
-                        serial_port2.write(bytes())
-                
-                serial_port1.reset_input_buffer()
-            else:
-                time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
-        except:
-            pass
+            vals = esp32_output.split(",") # Split into a list of strings
+            print(vals) # Useful for debugging
+            
+            #for i in range(len(data)):
+                #data[i] = float(vals[i])
+            c1 = esp32_output[2:].strip()[0]
+            c2 = esp32_output[2:].strip()[1]
 
-        
+            if (c1 == deli):
+                out_port.write(bytes(f"{c2}", "utf-8"))
+            
+            
+            #if (str(vals[i])[0] == "#"):
+            #    print("RECEIVED!!!!!")
+                #out_port.write(bytes(f"{str(vals[i])[1]}", "utf-8"))
+            
+            in_port.reset_input_buffer()
+        else:
+            time.sleep(0.00101) # Sleep for at least 1 ms to give the loop a chance to rest
+        #except:
+        #    pass
+
+       
 """def read_micro(read_q, write_q):
     while True:
         incoming = str(serial_port1.readline())#read_q.get()
@@ -333,8 +340,11 @@ if __name__ == "__main__":
     #to_side = threading.Thread(target=io_thread, daemon = True, args = (serial_port1, write_q2, read_q2))
     #to_side.start()
 
-    read_main = threading.Thread(target=read_micro, daemon = True)
+    read_main = threading.Thread(target=read_micro, daemon = True, args=('#', serial_port1, serial_port2))
     read_main.start()
+
+    #read_side = threading.Thread(target=read_micro2, daemon = True)
+    #read_side.start()
 
     #read_sensors = threading.Thread(target=read_micro, daemon = True, args = (read_q2))
     #read_sensors.start()
