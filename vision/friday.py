@@ -252,3 +252,23 @@ if __name__ == "__main__":
     read_side.start()
 
     main()
+
+
+    import serial, glob, time
+
+def identify(port):
+    ser = serial.Serial(port, 115200, timeout=0.5)
+    time.sleep(0.6)                  # give ESP time to reset & print
+    line = ser.readline().decode(errors='ignore')
+    ser.close()
+    return line.strip()
+
+cams, sensors = None, None
+for dev in glob.glob("/dev/ttyUSB*"):
+    tag = identify(dev)
+    if tag == "@CAM":
+        cams = dev
+    elif tag == "@SENSOR":
+        sensors = dev
+
+print("cam on", cams, "sensors on", sensors)
