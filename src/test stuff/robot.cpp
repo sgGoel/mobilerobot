@@ -81,47 +81,40 @@ void loop() {
   //readRotary();
   
   //sendData(); // Sends data using ESP-NOW to reciever
-  printData();  // Prints data via serial port
+  //printData();  // Prints data via serial port
   delay(20);
 
   // ADDED
 
-  // test, all forward, 50% pwm
-  // motors[0].drive(-0.5);
-  // motors[1].drive(-0.5);
-  // motors[2].drive(0.5);
-  // motors[3].drive(0.5);
+  //test, all forward, 50% pwm
+  motors[0].drive(-0.5);
+  motors[1].drive(-0.5);
+  motors[2].drive(0.5);
+  motors[3].drive(0.5);
 
   // WHERE THE GOOD STUFF STARTS
-  if(data.swch1){
-    //Serial.println("Switching to Nav Mode");
-    man_mode = false;
-    nav_mode = true;
-    pwm_0=0;
-    pwm_1=0;
-    pwm_2=0;
-    pwm_3=0;
-  }
-  if(data.swch2){
-    //Serial.print("Switching to Man Mode");
-    man_mode = true;
-    nav_mode = false;
-    pwm_0=0;
-    pwm_1=0;
-    pwm_2=0;
-    pwm_3=0;
-  }
+  // if(data.swch1 and man_mode){
+  //   Serial.println("Switching to Nav Mode");
+  //   man_mode = false;
+  //   nav_mode = true;
+  //   pwm_0=0;
+  //   pwm_1=0;
+  //   pwm_2=0;
+  //   pwm_3=0;
+  // } else if(data.swch1 and nav_mode){
+  //   Serial.print("Switching to Man Mode");
+  //   man_mode = true;
+  //   nav_mode = false;
+  //   pwm_0=0;
+  //   pwm_1=0;
+  //   pwm_2=0;
+  //   pwm_3=0;
+  // }
   pwm_0=0;
   pwm_1=0;
   pwm_2=0;
   pwm_3=0;
-  // // when in man_mode
-  // if(man_mode){
-  //   Serial.println("you're in man mode!");
-  // }
-
   // when in nav_mode
-  if(nav_mode){
     //Serial.println("you're in nav mode!");
 
     // forward or backward, left Y joystick
@@ -149,15 +142,19 @@ void loop() {
       pwm_2 += data.rightX/3;
       pwm_3 += -data.rightX/3;
     }
-    Serial.println(pwm_0);
-    Serial.println(pwm_1);
-    Serial.println(pwm_2);
-    Serial.println(pwm_3);
+    Serial.print(pwm_0);
+    Serial.print(" ");
+    Serial.print(pwm_1);
+    Serial.print(" ");
+    Serial.print(pwm_2);
+    Serial.print(" ");
+    Serial.print(pwm_3);
+    Serial.println();
     motors[0].drive(-pwm_0);
     motors[1].drive(-pwm_1);
     motors[2].drive(pwm_2);
     motors[3].drive(pwm_3);
 
-  }
+
   
 }

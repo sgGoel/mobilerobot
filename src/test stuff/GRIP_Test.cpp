@@ -47,16 +47,10 @@
  // Possible PWM GPIO pins on the ESP32-S2: 0(used by on-board button),1-17,18(used by on-board LED),19-21,26,33-42
  // Possible PWM GPIO pins on the ESP32-S3: 0(used by on-board button),1-21,35-45,47,48(used by on-board LED)
  // Possible PWM GPIO pins on the ESP32-C3: 0(used by on-board button),1-7,8(used by on-board LED),9-10,18-21
- #if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
  int servoPin = 38;
- #elif defined(CONFIG_IDF_TARGET_ESP32C3)
- int servoPin = 7;
- #else
- int servoPin = 18;
- #endif
  
  void setup() {
-  Serial.begin();
+  Serial.begin(115000);
    // Allow allocation of all timers
   //  ESP32PWM::allocateTimer(0);
   //  ESP32PWM::allocateTimer(1);
@@ -70,9 +64,11 @@
    
  }
  
+ // Test Result  - 180 is open, 0 is closed (really, 50 is okay)
+
  void loop() {
  
-   for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+   for (pos = 0;  pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
      // in steps of 1 degree
      myservo.write(pos);    // tell servo to go to position in variable 'pos'
      delay(15);             // waits 15ms for the servo to reach the position
