@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include "util.h"
-#include "robot_drive.h"
 #include "EncoderVelocity.h"
-#include "wireless.h"
+//#include "wireless.h"
+#include "remote.h"
 #include "robot_motion_control.h"
+#include "robot_drive.h"
 #include <cmath>
 #include <cstdlib>
 
@@ -16,7 +17,7 @@
 // #define PICKUP // Test run for positioning to pick up a box
 // #define DROPOFF // Test run for positioning to drop off a box
 
-// #define REV // Test run for backward motion
+ // #define TEST // Test run
 // #define TLEFT // Test run for turning left
 // #define TRIGHT // Test run for turning right
 // #define SLEFT // Test run for strafing left
@@ -24,8 +25,8 @@
 
 // end new functions
 
-extern RobotMessage robotMessage; // old robotMessage
-extern ControllerMessage controllerMessage;
+RobotMessage robotMessage; // old robotMessage
+//extern ControllerMessage controllerMessage;
 // extern RobotMess robotMess; // Layla Added
 
 int state = 0;
@@ -50,7 +51,7 @@ float dclear1 = 1;
 float dclear2 = 1;
 float ddirection = -4;
 float dsetpoint = 10;
-float dtest = 10;
+float dtest = 2;
 int dropoffstate = 0;
 int pickupstate = 0;
 int cleardropstate = 0;
@@ -63,13 +64,16 @@ bool shouldClose = false;
 float dropoffstrafe = 0;
 float pickupstrafe = 0;
 
+
 std::atomic<float> x{0.0f}; 
 
 
 float Xapril = apriltagx.load(); // assume distance from april tag (x)
 float Yapril = apriltagy.load(); // assume distance from april tag (y)
 float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
+float Colorapril = colorid.load(); // color reading from camera
 float error = 0.25; // about 1cm tolerance on each side
+float desiredColor = 0; // color we want
 
 // Sets the desired wheel velocities based on desired robot velocity in m/s
 // and k curvature in 1/m representing 1/(radius of curvature)
@@ -96,6 +100,113 @@ void AWDsetWheelVelocities(float robotVelocity, float robotYVelocity, float thet
     AWDupdateSetpoints(m0, m1, m2, m3);
 }
 
+/// joystick attempt
+
+// motor PWMs
+double pwm_0; // backwards
+double pwm_1;
+double pwm_2;
+double pwm_3; //backwards
+
+bool pickupButton = false;
+bool dropoffButton = false;
+
+void manualDrive(){
+    delay(1000);
+    while(!data.swch2){
+        printData();
+        delay(20);
+        if(data.leftY > 0.2 or data.leftY < -0.2){
+            Serial.println("Forward/Backward");
+            pwm_0 += data.leftY/3;
+            pwm_1 += data.leftY/3;
+            pwm_2 += data.leftY/3;
+            pwm_3 += data.leftY/3;
+          }
+          // strafe, left X joystick
+          if(data.leftX > 0.2 or data.leftX < -0.2){
+            Serial.println("Strafing");
+            pwm_0 += -data.leftX/3;
+            pwm_1 += data.leftX/3;
+            pwm_2 += -data.leftX/3;
+            pwm_3 += data.leftX/3;
+      
+          }
+          // turn, right X joystick
+          if(data.rightX > 0.2 or data.rightX < -0.2){
+            Serial.println("Turning");
+            pwm_0 += -data.rightX/3;
+            pwm_1 += data.rightX/3;
+            pwm_2 += data.rightX/3;
+            pwm_3 += -data.rightX/3;
+          }
+
+          if(data.rightX < 0.2 and data.leftX < 0.2 and data.leftY < 0.2 and data.rightX > -0.2 and data.leftX > -0.2 and data.leftY > -0.2){
+            pwm_0=0;
+            pwm_1=0;
+            pwm_2=0;
+            pwm_3=0;
+          }
+          Serial.print(pwm_0);
+          Serial.print(" ");
+          Serial.print(pwm_1);
+          Serial.print(" ");
+          Serial.print(pwm_2);
+          Serial.print(" "); 
+          Serial.println(pwm_3);
+
+          double m0 = -pwm_0;
+          double m1 = -pwm_1;
+          double m2 = pwm_2;
+          double m3 = pwm_3;
+
+          if(m0 > 1){
+            m0 = 1;
+          }
+          if(m1 > 1){
+            m1 = 1;
+          }
+          if(m2 > 1){
+            m2 = 1;
+          }
+          if(m3 > 1){
+            m3 = 1;
+          }
+
+        //   AWDupdateSetpoints(m0, m1, m2, m3);
+        //   updatePIDs();
+
+          updateSpeeds(m0,m1,m2,m3);
+
+        // make sure the robot is at zero for certain
+        if(data.swch1){
+            updateSpeeds(0,0,0,0);
+            if(pickupButton){
+              delay(1000);
+              gripperClose();
+              pickupButton = false;
+              dropoffButton = true;
+        
+            } else if(dropoffButton){
+              delay(1000);
+              gripperOpen();
+              pickupButton = true;
+              dropoffButton = false;
+            }
+        }
+
+    }
+    updateSpeeds(0,0,0,0);
+    printData();
+    Serial.println("WARNING: FINGER OFF THE TRIGGER!");
+    delay(1000);
+    printData();
+}
+
+/// end joystick attempt
+
+
+
 // Layla -- track position and time
 unsigned long prevTime = 0;
 float Xrobot = 0.0;
@@ -120,6 +231,19 @@ void resetState() {
 // end layla function
 
 
+// gripper functions
+
+void gripperOpen(){
+    delay(20);
+}
+
+void gripperClose(){
+    delay(20);
+}
+
+//end gripper functions
+
+
 // layla distance tester
 
 void distTester(){
@@ -129,9 +253,9 @@ void distTester(){
     float dclear1 = 1; // temp
     float dclear2 = 1; // temp
     float ddriection = -4;
-    float dsetpoint = 10;
-    float dtest = 10;
-    dtest = 10; // temp variable -- length of gripper
+    float dsetpoint = 2;
+    float dtest = 2;
+    dtest = 2; // temp variable -- length of gripper
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - prevTime) / 1000.0;  // in seconds
     prevTime = currentTime;
@@ -224,9 +348,9 @@ bool pickup(String COLOR) {
         // Search for COLOR tag -- 0.4.2
         case 1:
             Serial.print("Desired color ID");
-            Serial.print(colorid);
+            Serial.print(desiredColor);
             Serial.print("ID");
-            Serial.print(IDapril);
+            Serial.print(colorid);
             Serial.print("April x");
             Serial.print(Xapril);
             Serial.print("April y");
@@ -242,7 +366,7 @@ bool pickup(String COLOR) {
             }
             // Strafe left (by default), right if for clear box
             if (COLOR == "CLEAR"){ // For clear box
-                if (!((colorid == IDapril) && abs(Xapril) < error)) {
+                if (!((colorid == desiredColor) && abs(Xapril) < error)) {
                     // Strafe right
                     Serial.print("STEP 2");
                     robotVelocity = 0;
@@ -261,7 +385,7 @@ bool pickup(String COLOR) {
                 }
             }
             else{ // For opaque boxes
-                if (!((colorid == IDapril) && abs(Xapril) < error)) {
+                if (!((colorid == desiredColor) && abs(Xapril) < error)) {
                     // Strafe left
                     Serial.print("STEP 2");
                     robotVelocity = 0;
@@ -297,16 +421,26 @@ bool pickup(String COLOR) {
                 pickupstate++;
             }
             break;
-        case 3:
+
+        case 3: // GRIPPER !
+            Serial.print("STEP 4");
+            gripperClose();
+            Xrobot = 0;
+            Yrobot = 0;
+            Trobot = 0;
+            pickupstate++;
+            break;
+
+        case 4:
             if (COLOR == "CLEAR"){
                 if (Yrobot >= -pickupstrafe) {
                     // Strafe right by default, left if going for clear box
-                    Serial.print("STEP 4");
+                    Serial.print("STEP 5");
                     robotVelocity = 0;
                     robotYVelocity = -ddirection;
                 } else {
                     // Move on to next state
-                    Serial.print("END STEP 4");
+                    Serial.print("END STEP 5");
                     Xrobot = 0;
                     Yrobot = 0;
                     Trobot = 0;
@@ -319,12 +453,12 @@ bool pickup(String COLOR) {
             else{
                 if (Yrobot <= pickupstrafe) {
                     // Strafe right by default, left if going for clear box
-                    Serial.print("STEP 4");
+                    Serial.print("STEP 5");
                     robotVelocity = 0;
                     robotYVelocity = -ddirection;
                 } else {
                     // Move on to next state
-                    Serial.print("END STEP 4");
+                    Serial.print("END STEP 5");
                     Xrobot = 0;
                     Yrobot = 0;
                     Trobot = 0;
@@ -336,7 +470,7 @@ bool pickup(String COLOR) {
                 }
             }
             break;
-        case 4:
+        case 6:
             return true;
         break;
     }
@@ -446,7 +580,7 @@ bool dropoff(String COLOR){
         // Look for COLOR tag -- 0.3.2
         case 3:
             // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
-            if (!((colorid == IDapril) && abs(Xapril) < error)){
+            if (!((colorid == desiredColor) && abs(Xapril) < error)){
                 // Strafe left
                 Serial.print("STEP 4");
                 Serial.print("X0: ");
@@ -466,35 +600,42 @@ bool dropoff(String COLOR){
             }
             break;
 
-        // Release box-- 0.3.3 [SKIPPED]
+        // Release box-- 0.3.3 
+        case 4: // GRIPPER !
+            Serial.print("STEP 5");
+            gripperOpen();
+            Xrobot = 0;
+            Yrobot = 0;
+            Trobot = 0;
+            pickupstate++;
+            break;
 
         // Push box into parking spot -- 0.3.4
-        case 4:
+        case 5:
             // Until robot has achieved a translation of -dgripper m
             if (Xrobot >= -dgripper) {
                 // Move in a straight line backward
-                Serial.print("STEP 5");
+                Serial.print("STEP 6");
                 robotVelocity = -4;
                 robotYVelocity = 0;
             } else {
                 // Move on to next state
-                Serial.print("END STEP 5");
+                Serial.print("END STEP 6");
                 dropoffstate++;
             }
             break;
         
-        // Close gripper [SKIPPED]
-
-        case 5:
+        case 6:
+            gripperClose();
             // Until robot has achieved a translation of dgripper m
             if (Xrobot <= 0) {
                 // Move in a straight line forward
-                Serial.print("STEP 6");
+                Serial.print("STEP 7");
                 robotVelocity = 4;
                 robotYVelocity = 0;
             } else {
                 // Move on to next state
-                Serial.print("END STEP 6");
+                Serial.print("END STEP 7");
                 robotVelocity = 0;
                 robotYVelocity = 0;
                 thetaSpeed = 0;
@@ -503,13 +644,13 @@ bool dropoff(String COLOR){
             }
             break;
 
-        // Return to setpoint -- 0.3.5 - [SKIPPED]
+        // Return to setpoint -- 0.3.5 
         // Strafe back
-        case 6:
-        // Until robot sees COLOR tag [SKIPPED]
+        case 7:
+        // Until robot sees COLOR tag
         if (Yrobot <= dropoffstrafe) {
             // Strafe right
-            Serial.print("STEP 7");
+            Serial.print("STEP 8");
             Serial.print("X0: ");
             Serial.print(Xrobot);
             Serial.print(", Y0: ");
@@ -520,17 +661,17 @@ bool dropoff(String COLOR){
             robotYVelocity = 4;
         } else {
             // Move on to next state
-            Serial.print("END STEP 7");
+            Serial.print("END STEP 8");
             Xrobot = 0;
             dropoffstate++;
         }
         break;
 
-        case 7:
+        case 8:
         // Until robot as achieved a translation of -d2 m
         if (Xrobot >= -d2) {
             // Move in a straight line backwards
-            Serial.print("STEP 8");
+            Serial.print("STEP 9");
             Serial.print("X0: ");
             Serial.print(Xrobot);
             Serial.print(", Y0: ");
@@ -542,7 +683,7 @@ bool dropoff(String COLOR){
             robotYVelocity = 0;
         } else {
             // Move on to next state
-            Serial.print("END STEP 8");
+            Serial.print("END STEP 9");
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
@@ -550,13 +691,13 @@ bool dropoff(String COLOR){
         }
         break;
 
-        case 8:
+        case 9:
         // Until robot has turned 90 degrees
         if (Trobot <= 15) {
             robotVelocity = 0;
             robotYVelocity = 0;
             thetaSpeed = 4;
-            Serial.print("STEP 9");
+            Serial.print("STEP 10");
             Serial.print("X0: ");
             Serial.print(Xrobot);
             Serial.print(", Y0: ");
@@ -564,20 +705,20 @@ bool dropoff(String COLOR){
             Serial.print(", Theta0: ");
             Serial.println(Trobot);
         } else {
-            Serial.print("END STEP 9");
+            Serial.print("END STEP 10");
             Xrobot = 0;
             dropoffstate++;
         }
         break;
 
-        case 9:
+        case 10:
             // Until robot has achieved a translation of d1 m
             Serial.print("D1");
             Serial.print(d1);
             Serial.print("D2");
             Serial.print(d2);
             if (Xrobot <= d1) {
-                Serial.print("STEP 10");
+                Serial.print("STEP 11");
                 // Move in a straight line forward
                 robotVelocity = 4;
                 robotYVelocity = 0;
@@ -589,7 +730,7 @@ bool dropoff(String COLOR){
                 Serial.println(Trobot);
             } else {
                 // Move on to next state
-                Serial.print("END STEP 10");
+                Serial.print("END STEP 11");
                 robotVelocity = 0;
                 robotYVelocity = 0;
                 thetaSpeed = 0;
@@ -600,7 +741,7 @@ bool dropoff(String COLOR){
                 return true;
             }
             break;
-        case 10:
+        case 11:
             return true;
             break;
     }
@@ -681,7 +822,7 @@ bool clearDropoff() {
         // strafe right to get to box
         case 3:
             // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
-            if (!((colorid == IDapril) && abs(Xapril) < error)){
+            if (!((colorid == desiredColor) && abs(Xapril) < error)){
                 // Strafe left
                 Serial.print("CLEARDROP 4");
                 Serial.print("X0: ");
@@ -795,6 +936,10 @@ bool reachYellow(){
 
 // Makes robot follow a trajectory
 void followTrajectory() {
+    #ifdef TEST
+    Serial.print("In tester");
+    distTester();
+    #endif
     #ifdef FWD
     Serial.print("april tag");
     Serial.print(Xapril);
@@ -808,6 +953,15 @@ void followTrajectory() {
             }
             else{
                 Serial.print("TOYELLOW");
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = true;
+                    dropoffButton = false;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 reachYellow();
                 Serial.print("yellowstate");
                 Serial.print(yellowstate);
@@ -822,7 +976,22 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 1");
-                colorid = 0;
+                desiredColor = 0;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = true;
+                    dropoffButton = false;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 pickup("YELLOW");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -836,7 +1005,22 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 1");
-                colorid = 0;
+                desiredColor = 0;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = false;
+                    dropoffButton = true;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 dropoff("YELLOW");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -851,7 +1035,22 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 2");
-                colorid = 1;
+                desiredColor = 1;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = true;
+                    dropoffButton = false;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 pickup("BLUE");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -865,7 +1064,22 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 2");
-                colorid = 1;
+                desiredColor = 1;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = false;
+                    dropoffButton = true;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 dropoff("BLUE");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -880,7 +1094,22 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 3");
-                colorid = 2;
+                desiredColor = 2;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = true;
+                    dropoffButton = false;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 pickup("RED");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -894,7 +1123,22 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 3");
-                colorid = 2;
+                desiredColor = 2;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = false;
+                    dropoffButton = true;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 dropoff("RED");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -909,7 +1153,22 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP Clear");
-                colorid = 3;
+                desiredColor = 3;
+                if(data.swch2){
+                    Serial.println("Switching to manual");
+                    Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
+                    AWDsetWheelVelocities(0, 0, 0);
+                    pickupButton = true;
+                    dropoffButton = false;
+                    manualDrive();
+                    Serial.println("READY TO EXIT");
+                    state++;
+                }
                 pickup("CLEAR");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -923,7 +1182,22 @@ void followTrajectory() {
             state++;
         } else {
             Serial.print("DROPOFF Clear");
-            colorid = 3;
+            desiredColor = 3;
+            if(data.swch2){
+                Serial.println("Switching to manual");
+                Xrobot = 0;
+                Yrobot = 0;
+                Trobot = 0;
+                robotVelocity = 0;
+                robotYVelocity = 0;
+                thetaSpeed = 0;
+                AWDsetWheelVelocities(0, 0, 0);
+                pickupButton = false;
+                dropoffButton = true;
+                manualDrive();
+                Serial.println("READY TO EXIT");
+                state++;
+            }
             clearDropoff();
             Serial.print("cleardropstate");
             Serial.print(cleardropstate);
