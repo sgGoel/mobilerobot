@@ -13,6 +13,11 @@
 // Force Definitions
 #define FORCE_SENSOR_PIN A3
 
+// Serial inclusion
+#include "esp_sender2.h"
+#include <util.h>
+#include <atomic>
+
 // Servo Definitions
 
 int angle = 0;
@@ -39,6 +44,8 @@ UMS3 ums3;
 bool navigating = false;
 bool pickup = true;
 bool dropoff = false;
+
+std::atomic<int> task{-1}; //1 = pickup, 2 = dropoff
 
 void open_gripper(){
     Serial.println("Opening...");
@@ -202,6 +209,15 @@ void loop() {
         } else {
             navigating = true;
         }
+    }
+
+    EVERY_N_MILLIS(500) { //TODO: finetune this delay
+      SensorData d = loopComm();
+      if (d.task != -1) { 
+          task.store(d.task); //1 = pickup, 2 = dropoff
+          //TODO: for Alessandro -- execute the task here, probably.
+
+      }
     }
 
 }

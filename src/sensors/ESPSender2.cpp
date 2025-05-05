@@ -11,7 +11,7 @@ void setupComm() {
 
 // read from Serial port version of loop() function
 // (not inherently incompatible with writing to Serial port, but the writing capability is just not needed in this version)
-AprilTagData loopComm() {
+SensorData loopComm() {
 
     static std::string buf;                    // keep it between calls
 
