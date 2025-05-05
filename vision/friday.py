@@ -217,9 +217,14 @@ def main():
         #cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
 
         
-        if (len(at) > 0 and len(col) > 0): #TODO: send color = -1 if no color, and do clear bucket logic
+        if (len(at) > 0): #TODO: send color = -1 if no color, and do clear bucket logic
             d = {"red":0, "blue":1, "yellow":2}
-            c = d[col[0][0]] if col[0][0] else -1
+            if len(col) > 0 and col[0][0]:
+                c = d[col[0][0]]
+            elif at[0] == 7:
+                c = 3
+            else:
+                c = -1
             try:
                 print(f"@{at[0]}@{at[1]}@{at[2]}@{at[3]}@{c}")
                 #write_q1.put((at[0], at[1], at[2], at[3], c))
