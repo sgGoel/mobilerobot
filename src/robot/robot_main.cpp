@@ -49,6 +49,8 @@ void loop() {
         resetState();
     }
     test = test + 1;
+    
+    //TODO: bring back delay for serial connection
 
     //else
     EVERY_N_MILLIS(20) {
