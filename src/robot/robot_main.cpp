@@ -32,6 +32,13 @@ void setup() {
     // joystick
     ums3.begin();
     initReceiver();
+
+    //gripper
+    /*initPeripherals();
+    initRotary();  
+    Serial.println("Starting!");
+    delay(1000);
+    initSender();*/
 }
 
 int test = 0;

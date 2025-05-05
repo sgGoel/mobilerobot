@@ -130,3 +130,11 @@ void updatePIDs() {
     updateKinematics();
     //end Layla added
 }
+
+void updateSpeeds(double a, double b, double c, double d){
+
+    motors[0].drive(a);
+    motors[1].drive(b);
+    motors[2].drive(c);
+    motors[3].drive(d);
+}
