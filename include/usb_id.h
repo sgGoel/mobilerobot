@@ -17,3 +17,11 @@ inline void initUSB(const char* product)
     Serial.begin(115200);           // starts the CDC‑ACM interface
     while (!Serial) { delay(10); }  // wait until the host enumerates
 }
+
+# AprilTag ESP32‑S3
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", \
+       ATTRS{serial}=="A1B2C3D4E5F6", SYMLINK+="esp_cam"
+
+# Sensor ESP32‑S3
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", \
+       ATTRS{serial}=="0F1E2D3C4B5A", SYMLINK+="esp_sensors"
