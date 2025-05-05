@@ -5,9 +5,9 @@
 void setupComm() {
     Serial.begin(115200);
 
-    //if (Serial.available() > 0){ //TODO: test this setup mechanism
-    //   int incomingByte = Serial.read();
-    //}
+    if (Serial.available() > 0){ //TODO: test this setup mechanism
+       int incomingByte = Serial.read();
+    }
 }
 
 // read from Serial port version of loop() function
@@ -38,7 +38,7 @@ AprilTagData loopComm() {
             Serial.print("y=");    Serial.println(y);
             Serial.print("z=");    Serial.println(z);
             Serial.print("col=");  Serial.println(col);
-        }   else if (sscanf(buf.c_str(), "&%d", &id) == 1) {
+        }  else if (sscanf(buf.c_str(), "&%d", &id) == 1) {
             Serial.print("task_status=");   Serial.println(id);
         }
 
