@@ -2,16 +2,18 @@
 #include <cstdio> 
 
 void setupComm() {
-    Serial.begin();
+    Serial.begin(115200);
 
-    if (Serial.available() > 0){ //TODO: test this setup mechanism
-       int incomingByte = Serial.read();
-    }
+    //if (Serial.available() > 0){ //TODO: test this setup mechanism
+    //   int incomingByte = Serial.read();
+    //}
 }
 
 // read from Serial port version of loop() function
 // (not inherently incompatible with writing to Serial port, but the writing capability is just not needed in this version)
 SensorData loopComm() {
+
+    sendToJetson();
 
     static std::string buf;                    // keep it between calls
 
@@ -35,6 +37,10 @@ SensorData loopComm() {
     return {-1};
 
     //delay(0.5); //some delay needed so as not to overwhelm microcontroller
+}
+
+void sendToJetson(){
+    Serial.println("&1");
 }
 
 
