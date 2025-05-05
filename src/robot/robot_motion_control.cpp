@@ -4,6 +4,8 @@
 #include "EncoderVelocity.h"
 #include "wireless.h"
 #include "robot_motion_control.h"
+#include <cmath>
+#include <cstdlib>
 
 // #define UTURN
 // #define CIRCLE
@@ -42,7 +44,7 @@ double thetaSpeed = 0; // Rotation of robot
 float d1 = 1;
 float d2 = 1;
 float d3 = 1;
-float dgripper = 1;
+float dgripper = 5.8;
 float dclear_offset = 0; // for motion based on opaque vs clear box
 float dclear1 = 1;
 float dclear2 = 1;
@@ -58,8 +60,16 @@ float r = 5.0;
 float b = 2.0;
 bool shouldOpen = false;
 bool shouldClose = false;
+float dropoffstrafe = 0;
+float pickupstrafe = 0;
 
 std::atomic<float> x{0.0f}; 
+
+
+float Xapril = apriltagx.load(); // assume distance from april tag (x)
+float Yapril = apriltagy.load(); // assume distance from april tag (y)
+float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
+float error = 0.25; // about 1cm tolerance on each side
 
 // Sets the desired wheel velocities based on desired robot velocity in m/s
 // and k curvature in 1/m representing 1/(radius of curvature)
@@ -114,7 +124,7 @@ void resetState() {
 
 void distTester(){
     Serial.print("tester");
-    float dgripper = 1; // temp
+    float dgripper = 5.8;
     float dclear_offset = 0; // for motion based on opaque vs clear box
     float dclear1 = 1; // temp
     float dclear2 = 1; // temp
@@ -172,13 +182,13 @@ void distTester(){
 bool pickup(String COLOR) {
     Serial.print("pickup");
     Serial.print(COLOR);
-    float dgripper = 1; // temp
+    float dgripper = 5.8; // temp
     float dclear_offset = 0; // for motion based on opaque vs clear box
     float dclear1 = 1; // temp
     float dclear2 = 1; // temp
     float ddriection = -4;
     float dsetpoint = 10;
-    dgripper = 2; // temp variable -- length of gripper
+    dgripper = 5.8; // temp variable -- length of gripper
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - prevTime) / 1000.0;  // in seconds
     prevTime = currentTime;
@@ -213,6 +223,14 @@ bool pickup(String COLOR) {
             break;
         // Search for COLOR tag -- 0.4.2
         case 1:
+            Serial.print("Desired color ID");
+            Serial.print(colorid);
+            Serial.print("ID");
+            Serial.print(IDapril);
+            Serial.print("April x");
+            Serial.print(Xapril);
+            Serial.print("April y");
+            Serial.print(Yapril);
             // Specify switch in direction for clear box 
             Serial.print("ddirection");
             Serial.print(ddirection);
@@ -224,20 +242,26 @@ bool pickup(String COLOR) {
             }
             // Strafe left (by default), right if for clear box
             if (COLOR == "CLEAR"){ // For clear box
-                if (Yrobot <= dsetpoint) {
-                    // Strafe left
+                if (!((colorid == IDapril) && abs(Xapril) < error)) {
+                    // Strafe right
                     Serial.print("STEP 2");
                     robotVelocity = 0;
                     robotYVelocity = ddirection;
                 } else {
                     // Move on to next state
                     Serial.print("END STEP 2");
+                    pickupstrafe = Yrobot;
                     Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
                     pickupstate++;
                 }
             }
             else{ // For opaque boxes
-                if (Yrobot >= -dsetpoint) {
+                if (!((colorid == IDapril) && abs(Xapril) < error)) {
                     // Strafe left
                     Serial.print("STEP 2");
                     robotVelocity = 0;
@@ -245,7 +269,13 @@ bool pickup(String COLOR) {
                 } else {
                     // Move on to next state
                     Serial.print("END STEP 2");
+                    pickupstrafe = Yrobot;
                     Xrobot = 0;
+                    Yrobot = 0;
+                    Trobot = 0;
+                    robotVelocity = 0;
+                    robotYVelocity = 0;
+                    thetaSpeed = 0;
                     pickupstate++;
                 }
             }
@@ -269,7 +299,7 @@ bool pickup(String COLOR) {
             break;
         case 3:
             if (COLOR == "CLEAR"){
-                if (Yrobot >= -dsetpoint) {
+                if (Yrobot >= -pickupstrafe) {
                     // Strafe right by default, left if going for clear box
                     Serial.print("STEP 4");
                     robotVelocity = 0;
@@ -287,7 +317,7 @@ bool pickup(String COLOR) {
                 } 
             }
             else{
-                if (Yrobot <= dsetpoint) {
+                if (Yrobot <= pickupstrafe) {
                     // Strafe right by default, left if going for clear box
                     Serial.print("STEP 4");
                     robotVelocity = 0;
@@ -319,10 +349,10 @@ bool pickup(String COLOR) {
 // Layla function -- dropoff trajectory based on color of box (for non-clear boxes)
 bool dropoff(String COLOR){
     Serial.print("dropoff");
-    d1 = 5; // temp variable -- distance from home to yellow box
+    d1 = 7.23; // temp variable -- distance from home to yellow box
     d2 = 5; // temp variable -- distance from home to in front of parking spots
     d3 = 10; // temp variable -- strafe distance
-    dgripper = 2; // temp variable -- length of gripper
+    dgripper = 5.8; // temp variable -- length of gripper
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - prevTime) / 1000.0;  // in seconds
     prevTime = currentTime;
@@ -415,8 +445,8 @@ bool dropoff(String COLOR){
             break;
         // Look for COLOR tag -- 0.3.2
         case 3:
-            // Until robot sees COLOR tag [SKIPPED]// if apriltagx < 0.05 --- say if apriltagid == color id...
-            if (Yrobot >= -d3) {
+            // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
+            if (!((colorid == IDapril) && abs(Xapril) < error)){
                 // Strafe left
                 Serial.print("STEP 4");
                 Serial.print("X0: ");
@@ -430,6 +460,7 @@ bool dropoff(String COLOR){
             } else {
                 // Move on to next state
                 Serial.print("END STEP 4");
+                dropoffstrafe = Yrobot;
                 Xrobot = 0;
                 dropoffstate++;
             }
@@ -476,7 +507,7 @@ bool dropoff(String COLOR){
         // Strafe back
         case 6:
         // Until robot sees COLOR tag [SKIPPED]
-        if (Yrobot <= d3) {
+        if (Yrobot <= dropoffstrafe) {
             // Strafe right
             Serial.print("STEP 7");
             Serial.print("X0: ");
@@ -647,18 +678,40 @@ bool clearDropoff() {
             }
             break;
         
+        // strafe right to get to box
+        case 3:
+            // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
+            if (!((colorid == IDapril) && abs(Xapril) < error)){
+                // Strafe left
+                Serial.print("CLEARDROP 4");
+                Serial.print("X0: ");
+                Serial.print(Xrobot);
+                Serial.print(", Y0: ");
+                Serial.print(Yrobot);
+                Serial.print(", Theta0: ");
+                Serial.println(Trobot);
+                robotVelocity = 0;
+                robotYVelocity = 4;
+            } else {
+                // Move on to next state
+                Serial.print("END CLEARDROP 4");
+                Xrobot = 0;
+                dropoffstate++;
+            }
+            break;
+        
         //[SKIPPED]--- open gripper and release box
 
-        case 3:
+        case 4:
             // Until robot has achieved a translation of - dclear2 m
             if (Xrobot >= -dclear2) {
                 // Move in a straight line backward
-                Serial.print("CLEARDROP 4");
+                Serial.print("CLEARDROP 5");
                 robotVelocity = -4;
                 robotYVelocity = 0;
             } else {
                 // Move on to next state
-                Serial.print("END CLEARDOP 4");
+                Serial.print("END CLEARDOP 5");
                 Xrobot = 0;
                 Yrobot = 0;
                 Trobot = 0;
@@ -669,7 +722,7 @@ bool clearDropoff() {
                 return true;
             }
             break;
-        case 4:
+        case 5:
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
@@ -689,8 +742,7 @@ int started = 0;
 
 // start Layla reachYellow function
 bool reachYellow(){
-    d1 = 5; // temp variable -- distance from home to yellow box
-    d2 = 5; // temp variable -- distance from home to in front of parking spots
+    d1 = 7.23; // temp variable -- distance from home to yellow box
     unsigned long currentTime = millis();
     float deltaTime = (currentTime - prevTime) / 1000.0;  // in seconds
     prevTime = currentTime;
@@ -744,6 +796,8 @@ bool reachYellow(){
 // Makes robot follow a trajectory
 void followTrajectory() {
     #ifdef FWD
+    Serial.print("april tag");
+    Serial.print(Xapril);
     switch (state){
         case 0: // STEP 0: get to yellowpos setpoint
             if(reachYellow()){
@@ -768,7 +822,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 1");
-                colorid = 1;
+                colorid = 0;
                 pickup("YELLOW");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -782,7 +836,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 1");
-                colorid = 1;
+                colorid = 0;
                 dropoff("YELLOW");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -797,7 +851,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 2");
-                colorid = 2;
+                colorid = 1;
                 pickup("BLUE");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -811,7 +865,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 2");
-                colorid = 2;
+                colorid = 1;
                 dropoff("BLUE");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -826,7 +880,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP 3");
-                colorid = 3;
+                colorid = 2;
                 pickup("RED");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -840,7 +894,7 @@ void followTrajectory() {
                 state++;
             } else {
                 Serial.print("DROPOFF 3");
-                colorid = 3;
+                colorid = 2;
                 dropoff("RED");
                 Serial.print("dropoffstate");
                 Serial.print(dropoffstate);
@@ -855,7 +909,7 @@ void followTrajectory() {
             }
             else {
                 Serial.print("PICKUP Clear");
-                colorid = 4;
+                colorid = 3;
                 pickup("CLEAR");
                 Serial.print("pickupstate");
                 Serial.print(pickupstate);
@@ -869,7 +923,7 @@ void followTrajectory() {
             state++;
         } else {
             Serial.print("DROPOFF Clear");
-            colorid = 4;
+            colorid = 3;
             clearDropoff();
             Serial.print("cleardropstate");
             Serial.print(cleardropstate);
