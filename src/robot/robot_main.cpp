@@ -18,6 +18,8 @@ std::atomic<float> apriltagy{10};
 std::atomic<int> apriltagid{0};
 std::atomic<int> colorid{0}; // color reading from Apriltag
 
+std::atomic<bool> taskComp{false};
+
 
 void setup() {
     Serial.begin(115200);
