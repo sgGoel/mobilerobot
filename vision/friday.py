@@ -97,8 +97,8 @@ def april_tag_detection(frame):
         # Print or display the pose
         # Note: The translation is in meters, given TAG_SIZE is in meters.
         # The orientation is with respect to the camera frame.
-        print(f"Detected Tag ID {tag_id}:")
-        print(f"  Translation (x, y, z) [m]: {t.ravel()}")
+        #print(f"Detected Tag ID {tag_id}:")
+        #print(f"  Translation (x, y, z) [m]: {t.ravel()}")
 
         #NOTE: no display needed
         #cv2.putText(undistorted, "X: " + str(round(float(t[0]),2)) + ", Y: " + str(round(float(t[1]),2)) + ", Z: " + str(round(float(t[2]),2)), corners[0], cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)

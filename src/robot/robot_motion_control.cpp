@@ -10,6 +10,8 @@
 #include "esp_sender.h"
 #include <mutex>
 
+#include <unordered_map>
+
 // #define UTURN
 // #define CIRCLE
 // #define JOYSTICK
@@ -41,6 +43,8 @@ double currPhiR = 0;
 double prevPhiL = 0;
 double prevPhiR = 0;
 
+std::unordered_map<int, int> lookup = {{2, 6}, {1, 5}, {0, 4}};
+
 // New variables (Layla)
 double robotYVelocity = 0; // Left-right velocity of robot
 double thetaSpeed = 0; // Rotation of robot
@@ -71,10 +75,10 @@ std::atomic<float> x{0.0f};
 
 std::mutex              m;
 std::unique_lock<std::mutex> lock(m);
-float Xapril = apriltagx.load(); // assume distance from april tag (x)
-float Yapril = apriltagy.load(); // assume distance from april tag (y)
-float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
-float Colorapril = colorid.load(); // color reading from camera
+//float Xapril = apriltagx.load(); // assume distance from april tag (x)
+//float Yapril = apriltagy.load(); // assume distance from april tag (y)
+//float IDapril = apriltagid.load(); // assume 0, 1, 2, or 3
+//float Colorapril = colorid.load(); // color reading from camera
 float error = 0.25; // about 1cm tolerance on each side
 float desiredColor = 0; // color we want
 
@@ -186,22 +190,22 @@ void manualDrive(){
             updateSpeeds(0,0,0,0);
             if(pickupButton){
               delay(1000);
-              sendToJetson(2);
+              //sendToJetson(2);
               pickupButton = false;
               dropoffButton = true;
 
-              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              taskComp.store(false);
+              //v.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              //taskComp.store(false);
         
             } else if(dropoffButton){
               delay(1000);
               //gripperOpen();
-              sendToJetson(1);
+              //sendToJetson(1);
               pickupButton = true;
               dropoffButton = false;
 
-              cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-              taskComp.store(false);
+              //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+              //taskComp.store(false);
             }
         }
 
@@ -363,14 +367,14 @@ bool pickup(String COLOR) {
 
         case 1: // GRIPPER - fake!
             Serial.print("STEP 4");
-            sendToJetson(1);
+            //sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Search for COLOR tag -- 0.4.2
@@ -378,11 +382,11 @@ bool pickup(String COLOR) {
             Serial.print("Desired color ID");
             Serial.print(desiredColor);
             Serial.print("ID");
-            Serial.print(colorid);
+            Serial.print(colorid.load());
             Serial.print("April x");
-            Serial.print(Xapril);
+            Serial.print(apriltagx.load());
             Serial.print("April y");
-            Serial.print(Yapril);
+            Serial.print(apriltagy.load());
             // Specify switch in direction for clear box 
             Serial.print("ddirection");
             Serial.print(ddirection);
@@ -394,7 +398,7 @@ bool pickup(String COLOR) {
             }
             // Strafe left (by default), right if for clear box
             if (COLOR == "CLEAR"){ // For clear box
-                if (!((colorid == desiredColor) && abs(Xapril) < error)) {
+                if (!((apriltagid.load() == 7) && abs(apriltagx.load()) < error)) {
                     // Strafe right
                     Serial.print("STEP 2");
                     robotVelocity = 0;
@@ -413,7 +417,7 @@ bool pickup(String COLOR) {
                 }
             }
             else{ // For opaque boxes
-                if (!((colorid == desiredColor) && abs(Xapril) < error)) {
+                if (!((apriltagid.load() == lookup[desiredColor]) && abs(apriltagx.load()) < error)) {
                     // Strafe left
                     Serial.print("STEP 2");
                     robotVelocity = 0;
@@ -453,14 +457,14 @@ bool pickup(String COLOR) {
         case 4: // GRIPPER !
             Serial.print("STEP 4");
             //gripperClose();
-            sendToJetson(2);
+            //sendToJetson(2);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         case 5:
@@ -612,7 +616,7 @@ bool dropoff(String COLOR){
         // Look for COLOR tag -- 0.3.2
         case 3:
             // Until robot sees COLOR tag [SKIPPED]// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
-            if (!((colorid == desiredColor) && abs(Xapril) < error)){
+            if (!((colorid.load() == desiredColor) && abs(apriltagx.load()) < error)){
                 // Strafe left
                 Serial.print("STEP 4");
                 Serial.print("X0: ");
@@ -635,14 +639,14 @@ bool dropoff(String COLOR){
         // Release box-- 0.3.3 
         case 4: // GRIPPER !
             Serial.print("STEP 5");
-            sendToJetson(1);
+            //sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Push box into parking spot -- 0.3.4
@@ -661,7 +665,7 @@ bool dropoff(String COLOR){
             break;
         
         case 6:
-            sendToJetson(2);
+            //sendToJetson(2);
             // Until robot has achieved a translation of dgripper m
             if (Xrobot <= 0) {
                 // Move in a straight line forward
@@ -678,8 +682,8 @@ bool dropoff(String COLOR){
                 dropoffstate++;
             }
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
             break;
 
         // Return to setpoint -- 0.3.5 
@@ -860,7 +864,7 @@ bool clearDropoff() {
         // strafe right to get to box
         case 3:
             // Until robot sees COLOR tag// if id color matches and |apriltagx| < ~1cm --- say if apriltagid == color id...
-            if (!((colorid == desiredColor) && abs(Xapril) < error)){
+            if (!((colorid.load() == desiredColor) && abs(apriltagx.load()) < error)){
                 // Strafe left
                 Serial.print("CLEARDROP 4");
                 Serial.print("X0: ");
@@ -882,14 +886,14 @@ bool clearDropoff() {
         //[SKIPPED]--- open gripper and release box
         case 4: // GRIPPER !
             Serial.print("STEP 5");
-            sendToJetson(1);
+            //sendToJetson(1);
             Xrobot = 0;
             Yrobot = 0;
             Trobot = 0;
             pickupstate++;
 
-            cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
-            taskComp.store(false);
+            //cv.wait(lock, [] { return taskComp.load(std::memory_order_acquire); });
+            //taskComp.store(false);
 
             break;
 
@@ -992,7 +996,7 @@ void followTrajectory() {
     #endif
     #ifdef FWD
     Serial.print("april tag");
-    Serial.print(Xapril);
+    Serial.print(apriltagx.load());
     switch (state){
         case 0: // STEP 0: get to yellowpos setpoint
             if(reachYellow()){
