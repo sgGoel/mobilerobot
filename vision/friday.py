@@ -119,8 +119,8 @@ def color_detection(frame):
     # Minimum pixel dimensions for the strip
     # minimum should be more aggressive or def on rectangle should be more aggressive because we don;t want red cagei n background to trigger
     # maximum should also be more aggressive (OR ratio should be more aggressive)
-    MIN_WIDTH  = 30
-    MIN_HEIGHT = 150
+    MIN_WIDTH  = 20#30
+    MIN_HEIGHT = 100#150
     MAX_WIDTH = 375
     MAX_HEIGHT = 375
     MIN_RATIO = 0.1
@@ -182,7 +182,7 @@ def main():
         col = color_detection(frame) #lst #we'll assume for now that only one color bar is detected
         cv2.imshow('AprilTag Detection', frame) #NOTE: no display needed
         
-        if (len(at) > 0 and len(col) > 0):
+        if (len(at) > 0 and len(col) > 0): #TODO: send color = -1 if no color, and do clear bucket logic
             d = {"red":0, "blue":1, "yellow":2}
             c = d[col[0][0]] if col[0][0] else -1
             #s = at + "@" + str(c)
