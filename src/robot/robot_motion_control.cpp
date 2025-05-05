@@ -121,10 +121,11 @@ bool pickupButton = false;
 bool dropoffButton = false;
 
 void manualDrive(){
+    //printData();
     manualFlag.store(true);
-    delay(20);
+    delay(1000);
     while(!data.swch2){
-        printData();
+        //printData();
         delay(20);
         if(data.leftY > 0.2 or data.leftY < -0.2){
             Serial.println("Forward/Backward");
@@ -1032,6 +1033,7 @@ void followTrajectory() {
             else{
                 Serial.print("TOYELLOW");
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     AWDsetWheelVelocities(0, 0, 0);
                     pickupButton = true;
@@ -1056,6 +1058,7 @@ void followTrajectory() {
                 Serial.print("PICKUP 1");
                 desiredColor = 2;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1085,6 +1088,7 @@ void followTrajectory() {
                 Serial.print("DROPOFF 1");
                 desiredColor = 2;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1115,6 +1119,7 @@ void followTrajectory() {
                 Serial.print("PICKUP 2");
                 desiredColor = 1;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1144,6 +1149,7 @@ void followTrajectory() {
                 Serial.print("DROPOFF 2");
                 desiredColor = 1;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1174,6 +1180,7 @@ void followTrajectory() {
                 Serial.print("PICKUP 3");
                 desiredColor = 0;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1203,6 +1210,7 @@ void followTrajectory() {
                 Serial.print("DROPOFF 3");
                 desiredColor = 0;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1233,6 +1241,7 @@ void followTrajectory() {
                 Serial.print("PICKUP Clear");
                 desiredColor = 3;
                 if(data.swch2){
+                    //printData();
                     Serial.println("Switching to manual");
                     Xrobot = 0;
                     Yrobot = 0;
@@ -1262,6 +1271,7 @@ void followTrajectory() {
             Serial.print("DROPOFF Clear");
             desiredColor = 3;
             if(data.swch2){
+                //printData();
                 Serial.println("Switching to manual");
                 Xrobot = 0;
                 Yrobot = 0;

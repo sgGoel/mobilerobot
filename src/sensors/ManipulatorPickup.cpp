@@ -48,13 +48,13 @@ std::atomic<int> task{-1}; //1 = pickup, 2 = dropoff
 
 void open_gripper(){
     Serial.println("Opening...");
-    myservo.write(150); 
+    myservo.write(180); 
     delay(2000);
 }
 
 void close_gripper(){
     Serial.println("Closing...");
-    myservo.write(50);
+    myservo.write(0);
     delay(2000);
 }
 
@@ -106,6 +106,8 @@ void setup() {
   
   Serial.println("Stepper Activated");
   delay(10);
+
+  delay(20000);
 }
 
 void loop() {

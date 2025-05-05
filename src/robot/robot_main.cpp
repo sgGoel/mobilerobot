@@ -58,18 +58,21 @@ void loop() {
     //TODO: bring back delay for serial connection
 
     //else
-    EVERY_N_MILLIS(200) { ///20
-        followTrajectory();
+    EVERY_N_MILLIS(50) { ///20
+        //printData();
+        if (!manualFlag.load()){
+            followTrajectory();
+        }
         //manipulatorLoop();
     }
 
     // Update PID at 200Hz
-    EVERY_N_MILLIS(50) { //5
+    EVERY_N_MILLIS(25) { //5
         updatePIDs();
     }
 
     // Send and print robot values at 20Hz
-    EVERY_N_MILLIS(500) { //50
+    EVERY_N_MILLIS(100) { //100
         updateOdometry();
         //sendRobotData();
 

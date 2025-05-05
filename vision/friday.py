@@ -213,6 +213,9 @@ def main():
     while True:
         ret, frame = cap.read()
 
+        h,w = frame.shape[:2]
+        frame = frame[:, w//5 : 4*w//5]
+
         if not ret:
             print("Failed to read from the webcam.")
             break
